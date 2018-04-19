@@ -57,7 +57,7 @@ def title_screen():
     print('==                                      ==')
     print('==      This is a learning project.     ==')
     print('==                                      ==')
-    print('==         2018 Kalidor and Coop        ==')
+    print('==       2018 Martin "Coop" Cupak       ==')
     print('==========================================\n')
     print('')
     print('[1] Start Game \n[2] Load Game \n[3] Help \n[4] Quit Game')
