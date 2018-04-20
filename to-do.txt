@@ -1,0 +1,8 @@
+- battle system
+- battle screen
+- inventory screen
+- learn curses
+- learn textwrap
+- magic
+- leveling system
+- create more monsters
