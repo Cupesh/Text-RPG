@@ -4,9 +4,13 @@ import cmd
 import time
 import random
 import dill
+import textwrap
 from worldmap import gamemap
 from items import *
 
+os.system('mode con: cols=100 lines=50')
+width = os.get_terminal_size().columns
+length = os.get_terminal_size().lines
 # ======== CHARACTER CLASS ==========
 class Player:
     def __init__(self):
@@ -52,15 +56,18 @@ myplayer = Player()  # character created with no stats or name, those values wil
 
 def title_screen():
     os.system('cls')
-    print('==========================================')
-    print('==  Welcome to a Python Text Based RPG  ==')
-    print('==                                      ==')
-    print('==      This is a learning project.     ==')
-    print('==                                      ==')
-    print('==       2018 Martin "Coop" Cupak       ==')
-    print('==========================================\n')
+    print('=========================================='.center(width))
+    print('==  Welcome to a Python Text Based RPG  =='.center(width))
+    print('==                                      =='.center(width))
+    print('==      This is a learning project.     =='.center(width))
+    print('==                                      =='.center(width))
+    print('==       2018 Martin "Coop" Cupak       =='.center(width))
+    print('=========================================='.center(width))
     print('')
-    print('[1] Start Game \n[2] Load Game \n[3] Help \n[4] Quit Game')
+    print('[1] Start Game'.center(width))
+    print('[2] Load Game'.center(width))
+    print('[3] Help     '.center(100))
+    print('[4] Quit Game'.center(width))
     option = input('\n> ')
     if option.lower() in ['1', 'start']:
         character_creation()
@@ -325,26 +332,29 @@ def shop_prompt(npc):
 
 def shop_window(npc):
     os.system('cls')
-
-    print('\n-------------------- Weapons --------------------')
+    print('===================== {} ========================'.format(npc.name.upper()))
+    print('-------------------- Weapons --------------------')
     print('')
     for i in npc.weapons_inventory:
         if i[1] > 0:
-            print('{} x{}        DMG: {} SPEED: {}     Price: {}'.format(i[0].name, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
+            c = ' ' * (30 - len(i[0].name))
+            print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
 
     print('')
     print('\n-------------------- Potions --------------------')
     print('')
     for i in npc.potions_inventory:
         if i[1] > 0:
-            print('{} x{}     Price: {}'.format(i[0].name, str(i[1]), str(i[0].value)))
+            c = ' ' * (30 - len(i[0].name))
+            print('{}{}x{}                      Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].value)))
 
     print('')
     print('\n-------------------- Armor --------------------')
     print('')
     for i in npc.armors_inventory:
         if i[1] > 0:
-            print('{} x{}      DEF: {} SPEED: {}       Price: {}'.format(i[0].name, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value))) 
+            c = ' ' * (30 - len(i[0].name))
+            print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value))) 
 
     answers = ['1', '2', '3']
     print('\nCame to buy or sell?')
