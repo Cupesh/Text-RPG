@@ -20,7 +20,7 @@ class Player:
         self.hp = 0
         self.max_mp = 0
         self.mp = 0
-        self.attack = 1
+        self.attack = 0
         self.defence = 0
         self.speed = 10
         self.knows_magic = False
@@ -33,20 +33,110 @@ class Player:
         [strength_potion, 0]]
         self.armors_inventory = [[clothes, 0], [leather_armor, 0], [studded_leather_armor, 0], [chain_mail_armor, 0], [plate_armor, 0],
         [mage_robe, 0], [master_robe, 0]]
+        self.equipped_weapon = None
+        self.equipped_armor = None
 
     def display_inventory(self):
+        os.system('cls')
+        print('Equipped Weapon: {}'.format(self.equipped_weapon))
+        print('Equipped Armor: {}'.format(myplayer.equipped_armor))
+        print('')
         print('Gold: {}'.format(self.gold))
+        print('')
+        print('{:-^99}'.format(' Weapons '))
         for i in self.weapons_inventory:
             if i[1] > 0:
-                print(i[0].name)
+                c = ' ' * (30 - len(i[0].name))
+                print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
+        print('{:-^99}'.format(' Potions '))
         for i in self.potions_inventory:
-            if i[1] > 1:
-                print(i[0].name)
+            if i[1] > 0:
+                c = ' ' * (30 - len(i[0].name))
+                print('{}{}x{}                      Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].value)))
+        print('{:-^99}'.format(' Armors '))
         for i in self.armors_inventory:
             if i[1] > 0:
-                print(i[0].name)
-        input('\n<Back (Press Enter)>')
-        print_location()
+                c = ' ' * (30 - len(i[0].name))
+                print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
+        myplayer.inventory_prompt()
+
+    def inventory_prompt(self):
+        options = ['1', '2', '3', '4', '5']
+        print('\n[1] Use\n[2] Toss\n[3] Equip\n[4] De-equip\n[5] Leave\n')
+        answer = input('> ')
+        while answer not in options:
+            myplayer.display_inventory
+        if answer == '1':
+            myplayer.inventory_use()
+        elif answer == '2':
+            myplayer.inventory_toss()
+        elif answer == '3':
+            pass
+        elif answer == '4':
+            pass
+        elif answer == '5':
+            print_location()
+
+    def inventory_use(self):
+        for i in self.potions_inventory:
+            if i[1] > 1:
+                print('{}x {}'.format(i[0].name, str(i[1])))
+        print('')
+        print('<Use what?> (type \'back\' to return)')
+        options = [i[0].name.lower() for i in self.potions_inventory] + ['back']
+        answer = input('> ')
+        while answer.lower() not in options:
+            myplayer.inventory_use()
+        if answer.lower() == 'back':
+            myplayer.display_inventory()
+        for i in self.potions_inventory:
+            if answer.lower() == i[0].name.lower():
+                if i[1] > 0:
+                    Potion.use_potion(i[0], myplayer)
+                    i[1] -= 1
+                    myplayer.inventory_use()
+                else:
+                    ('<You don\'t have that!>')
+                    myplayer.inventory_use()
+
+    def inventory_toss(self):
+        print('\n<Toss what?> (type \'back\' to return)')
+        back = ['back']
+        a = [i[0].name.lower() for i in self.weapons_inventory]
+        b = [i[0].name.lower() for i in self.potions_inventory]
+        c = [i[0].name.lower() for i in self.armors_inventory]
+        options = a + b + c + back
+        answer = input('> ')
+        while answer.lower() not in options:
+            myplayer.inventory_toss()
+        if answer.lower() == 'back':
+            myplayer.display_inventory()
+        for i in self.weapons_inventory:
+            if i[1] > 0:
+                i[1] -= 1
+                print('\nYou tossed {} away!'.format(i[0].name))
+                myplayer.inventory_toss()
+            else:
+                print('\nYou don\'t have that!')
+                myplayer.inventory_toss()
+        for i in self.potions_inventory:
+            if i[1] > 0:
+                i[1] -= 1
+                print('\nYou tossed {} away!'.format(i[0].name))
+                myplayer.inventory_toss()                 
+            else:
+                print('\nYou don\'t have that!')
+                myplayer.inventory_toss()
+        for i in self.armors_inventory:
+            if i[1] > 0:
+                i[1] -= 1
+                print('\nYou tossed {} away!'.format(i[0].name))
+                myplayer.inventory_toss()                 
+            else:
+                print('\nYou don\'t have that!')
+                myplayer.inventory_toss()        
+
+
 
 global myplayer
 myplayer = Player()  # character created with no stats or name, those values will be passed in the object during the character creation
@@ -56,6 +146,7 @@ myplayer = Player()  # character created with no stats or name, those values wil
 
 def title_screen():
     os.system('cls')
+    print('\n' * 10)
     print('=========================================='.center(width))
     print('==  Welcome to a Python Text Based RPG  =='.center(width))
     print('==                                      =='.center(width))
@@ -108,13 +199,16 @@ def help_menu():
 
 def character_creation():
     os.system('cls') # clears the screen
-    print('What is your name?\n')
+    print('\n' * 24)
+    print('What is your name?\n'.center(width))
     playername = input('> ')
     myplayer.name = playername     # passes name into player object
     
     os.system('cls')
-    print('What is your job?')
-    print('You can choose:\n\n[1] Warrior\n[2] Mage')
+    print('\n' * 24)
+    print('What is your job?'.center(width))
+    print('[1] Warrior'.center(width))
+    print('[2] Mage'.center(96))
     playerjob = input('\n> ')
     if playerjob.lower() in ['1', 'warrior']:
         myplayer.job = 'Warrior'
@@ -137,16 +231,18 @@ def character_creation():
 
 def start_game():
     os.system('cls')
-    print('Wecome, {} the {}!'.format(myplayer.name, myplayer.job))
-    print('This is a small game, a Python learning project. Hope you\'ll enjoy!')
-    input('<Continue (Press Enter)>')
+    print('\n' * 24)
+    print('Wecome, {} the {}!'.format(myplayer.name, myplayer.job).center(width))
+    print('This is a small game, a Python learning project. Hope you\'ll enjoy!'.center(width))
+    print('')
+    input('<Continue (Press Enter)>'.center(width))
     print_location()
 
 
 def print_location():
     os.system('cls')
     print('')
-    print('===== {} ====='.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
+    print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
     print('')
     if gamemap[myplayer.area][myplayer.position]['SOLVED']:
         print(gamemap[myplayer.area][myplayer.position]['SOLVED_DESCRIPTION'])
@@ -166,8 +262,8 @@ def movement_handler(destination):
 
 
 def travel_handler(area, destination):
-    print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']))
-    input('\n<Continue (Press Enter)>')
+    print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']).center(width))
+    input('\n<Continue (Press Enter)>'.center(width))
     gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
     myplayer.area = area
     myplayer.position = destination
@@ -308,7 +404,7 @@ def shop():
     new_position = gamemap[myplayer.area][myplayer.position]['SHOP']
     myplayer.position = new_position
     npc = gamemap[myplayer.area][myplayer.position]['NPC']
-    print('======= {} ======='.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
+    print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
     print('')
     print('{}: {}'.format(npc.name, npc.dialogue['WELCOME']))
     print('')
@@ -332,8 +428,9 @@ def shop_prompt(npc):
 
 def shop_window(npc):
     os.system('cls')
-    print('===================== {} ========================'.format(npc.name.upper()))
-    print('-------------------- Weapons --------------------')
+    print(npc.name.upper().center(width))
+    print('-' * 100)
+    print('{:_^99}'.format(' Weapons '))
     print('')
     for i in npc.weapons_inventory:
         if i[1] > 0:
@@ -341,7 +438,7 @@ def shop_window(npc):
             print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
 
     print('')
-    print('\n-------------------- Potions --------------------')
+    print('\n{:_^99}'.format(' Potions '))
     print('')
     for i in npc.potions_inventory:
         if i[1] > 0:
@@ -349,13 +446,15 @@ def shop_window(npc):
             print('{}{}x{}                      Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].value)))
 
     print('')
-    print('\n-------------------- Armor --------------------')
+    print('\n{:_^99}'.format(' Armors '))
     print('')
     for i in npc.armors_inventory:
         if i[1] > 0:
             c = ' ' * (30 - len(i[0].name))
             print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value))) 
-
+    print('')
+    print('-' * 100)
+    print('\nYour gold: {}'.format(myplayer.gold))
     answers = ['1', '2', '3']
     print('\nCame to buy or sell?')
     print('\n[1] Buy\n[2] Sell\n[3] Back')
@@ -508,7 +607,7 @@ def dialogue(npc, screen):
     previous_screen = screen
     os.system('cls')
     print(npc.name)
-    print('-----------------\n')
+    print('-----------------------------------\n')
     count = 1
     options = ['1']
     for i in npc.dialogue['DIALOGUE']:
@@ -525,7 +624,7 @@ def dialogue(npc, screen):
 
     print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0] ))
     print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))
-    a = input('\n<Back (Press Enter)>')
+    input('\n<Back (Press Enter)>')
     dialogue(npc, previous_screen)
 
 
