@@ -6,3 +6,4 @@
 - magic
 - leveling system
 - create more monsters
+- display player stats window
