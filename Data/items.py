@@ -1,10 +1,8 @@
 import random
-
 class Item:
     def __init__(self, name, value):
         self.name = name
         self.value = value
-
 
 class Weapon(Item):
     def __init__(self, name, value, damage, speed):
@@ -20,6 +18,28 @@ class Potion(Item):
         self.speed_up = speed_up
         self.defence_up = defence_up
         self.attack_up = attack_up
+
+    def use_potion(self, player):
+        if self.hp_up == True and self.mp_up == True:
+            player.hp = player.max_hp
+            player.mp = player.max_mp
+            print('\nHP and MP restored!')
+        elif self.hp_up == True:
+            player.hp = player.max_hp
+            print('\nHP restored!')
+        elif self.mp_up == True:
+            player.mp = player.max_up
+            print('\nMP restored!')
+        elif self.speed_up == True:
+            player.speed += 1
+            print('\nYour speed has increased!')
+        elif self.defence_up == True:
+            player.defence += 1
+            print('\nYour defence increased!')
+        elif self.attack_up == True:
+            player.attack += 1
+            print('\nYour strenght increased!')
+
 
 class Armor(Item):
     def __init__(self, name, value, defence_bonus, speed, mana_bonus = 0):
