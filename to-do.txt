@@ -6,5 +6,7 @@
 - magic
 - leveling system             DONE
 - create more monsters
-- display player stats window
-- invetory equip/deequip
+- display player stats window DONE
+- invetory equip/deequip      50% (add/remove from inventory when e/d-e, objects name not printing)
+- cool text displaying
+- fix the repetition (.lower())
