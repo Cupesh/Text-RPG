@@ -1,10 +1,10 @@
 - battle system
 - battle screen
-- inventory screen  DONE
+- inventory screen            DONE
 - learn curses
-- learn textwrap    DONE
+- learn textwrap              DONE
 - magic
-- leveling system
+- leveling system             DONE
 - create more monsters
 - display player stats window
 - invetory equip/deequip
