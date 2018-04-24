@@ -5,7 +5,7 @@ gamemap = {
     'City' : {'NAME' : 'City',
         'a1' : {
         'GRIDNAME' : 'City Square West',
-        'DESCRIPTION' : textwrap.fill("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", width=100),
+        'DESCRIPTION' : textwrap.fill("Loren ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", width=100),
         'SOLVED_DESCRIPTION': "This is the west part of the city square. One of the buildings is a shop. The city square continues to the east. The city gates is south.",
         'SOLVED' : False,
         'SHOP' : 's1',
