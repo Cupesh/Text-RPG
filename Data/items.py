@@ -28,7 +28,7 @@ class Potion(Item):
             player.hp = player.max_hp
             print('\nHP restored!')
         elif self.mp_up == True:
-            player.mp = player.max_up
+            player.mp = player.max_hp
             print('\nMP restored!')
         elif self.speed_up == True:
             player.speed += 1
