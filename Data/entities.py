@@ -67,3 +67,4 @@ class Goblin:
         self.defence = random.randint(2, 4)
         self.speed = random.randint(4, 5)
         self.gold = random.randint(0, 5)
+        self.xp = 5
