@@ -24,9 +24,10 @@ class Player:
         self.defence = 0
         self.speed = 10
         self.knows_magic = False
+        self.spells = []
         self.area = 'City'
         self.position = 'a1'
-        self.gold = 50
+        self.gold = 100
         self.weapons_inventory = [[dagger, 1], [short_sword, 0], [long_sword, 0], [two_handed_sword, 0], [axe, 0], [battleaxe, 0],
         [spear, 0]]
         self.potions_inventory = [[healing_potion, 0], [mana_potion, 0], [rejuvenation_potion, 0], [speed_potion, 0], [ironskin_potion, 0],
@@ -102,7 +103,7 @@ class Player:
     def display_inventory(self):
         os.system('cls')
         print('Equipped Weapon: {}'.format(self.equipped_weapon))
-        print('Equipped Armor: {}'.format(myplayer.equipped_armor))
+        print('Equipped Armor: {}'.format(self.equipped_armor))
         print('')
         print('Gold: {}'.format(self.gold))
         print('')
@@ -136,7 +137,11 @@ class Player:
         elif answer == '3':
             self.inventory_equip()
         elif answer == '4':
-            pass
+            if self.equipped_armor == None and self.equipped_weapon == None:
+                print('\n<Nothing is equipped!>')
+                input('\n<Continue (Press Enter)>')
+                self.display_inventory()
+            self.inventory_deequip()
         elif answer == '5':
             print_location()
 
@@ -160,6 +165,7 @@ class Player:
                     self.inventory_use()
                 else:
                     ('<You don\'t have that!>')
+                    input('\n<Continue (Press Enter)>')
                     self.inventory_use()
 
     def inventory_toss(self):
@@ -171,44 +177,38 @@ class Player:
         options = a + b + c + back
         answer = input('> ')
         while answer.lower() not in options:
-            myplayer.inventory_toss()
+            self.inventory_toss()
         if answer.lower() == 'back':
-            myplayer.display_inventory()
+            self.display_inventory()
         for i in self.weapons_inventory:
             if i[1] > 0:
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                myplayer.inventory_toss()
+                self.inventory_toss()
             else:
                 print('\nYou don\'t have that!')
-                myplayer.inventory_toss()
+                self.inventory_toss()
         for i in self.potions_inventory:
             if i[1] > 0:
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                myplayer.inventory_toss()                 
+                self.inventory_toss()                 
             else:
                 print('\nYou don\'t have that!')
-                myplayer.inventory_toss()
+                self.inventory_toss()
         for i in self.armors_inventory:
             if i[1] > 0:
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                myplayer.inventory_toss()                 
+                self.inventory_toss()                 
             else:
                 print('\nYou don\'t have that!')
-                myplayer.inventory_toss()        
+                self.inventory_toss()        
 
     def inventory_equip(self):
         os.system('cls')
-        a = None
-        b = None
-        if self.equipped_weapon:
-            a = myplayer.equipped_weapon.name
-        if self.equipped_armor:
-            b = myplayer.equipped_armor.name
-        print('\nEquipped Weapon: {}'.format(a))
-        print('Equipped Armor: {}'.format(b))
+        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))
+        print('Equipped Armor: {}'.format(self.equipped_armor))
         print('')
         print('{:-^99}'.format(' Weapons '))
         for i in self.weapons_inventory:
@@ -228,15 +228,21 @@ class Player:
         answer = input('> ').lower()
         while answer.lower() not in options:
             self.inventory_equip()
+        if answer == 'back':
+            self.display_inventory()
         if answer in a:
             if self.equipped_weapon != None:
                 print('\nYou de-equipped {}'.format(self.equipped_weapon.name))
                 self.attack -= self.equipped_weapon.damage
                 self.speed -= self.equipped_weapon.speed
+                for i in self.weapons_inventory:
+                    if i[0].name == self.equipped_weapon.name:
+                        i[1] += 1
                 self.equipped_weapon = None
             for i in self.weapons_inventory:
                 if answer == i[0].name.lower():
                     self.equipped_weapon = i[0]
+                    i[1] -= 1
                     self.attack += i[0].damage
                     self.speed += i[0].speed
                     print('\nYou equipped {}'.format(i[0].name))
@@ -250,10 +256,14 @@ class Player:
                 self.max_mp -= self.equipped_armor.mana_bonus
                 if self.mp > self.max_mp:
                     self.mp = self.max_mp
+                for i in self.armors_inventory:
+                    if i[0].name == self.equipped_armor.name:
+                        i[1] += 1
                 self.equipped_armor = None
             for i in self.armors_inventory:
                 if answer == i[0].name.lower():
                     self.equipped_armor = i[0]
+                    i[1] -= 1
                     self.defence += i[0].defence_bonus
                     self.speed += i[0].speed
                     self.max_mp += i[0].mana_bonus
@@ -261,8 +271,55 @@ class Player:
                     input('\n<Continue (Press Enter)>')
                     self.display_inventory()
 
+    def inventory_deequip(self):
+        os.system('cls')
+        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))
+        print('Equipped Armor: {}'.format(self.equipped_armor))
+        print('')
+        print('<De-equip what?> (type \'back\' to return)')
+        if self.equipped_weapon == None:
+            a = None
+        else:
+            a = self.equipped_weapon.name.lower()
+        if self.equipped_armor == None:
+            b = None
+        else:
+            b = self.equipped_armor.name.lower()
+        options = ['back', a, b]
+        answer = input('> ').lower()
+        while answer not in options:
+            self.inventory_deequip()
+        if answer == 'back':
+            self.display_inventory()
+        for i in self.weapons_inventory:
+            if answer == i[0].name.lower():
+                i[1] += 1
+                print('\n<You de-equipped {}.>'.format(self.equipped_weapon.name))
+                self.attack -= self.equipped_weapon.damage
+                self.speed -= self.equipped_weapon.speed
+                self.equipped_weapon = None
+        for i in self.armors_inventory:
+            if answer == i[0].name.lower():
+                i[1] += 1
+                print('\n<You\'re no longer wearing {}.>'.format(self.equipped_armor.name))
+                self.defence -= self.equipped_armor.defence_bonus
+                self.speed -= self.equipped_armor.speed
+                self.max_mp -= self.equipped_armor.mana_bonus
+                if self.mp > self.max_mp:
+                    self.mp = self.max_mp
+                self.equipped_armor = None
+        input('\n<Continue (Press Enter)>')
+        self.display_inventory()
 
-
+    
+    def display_magic(self):
+        os.system('cls')
+        print('{:-^99}'.format(' Spells '))
+        for i in self.spells:
+            a = ' ' * (30 - len(i.name))
+            print('Name: {}   {}{}Cost: {} MP'.format(i.name, i.description, a, i.mp_cost))
+        input('\n<Continue (Press Enter)>')
+        print_location()
 
 myplayer = Player()  # character created with no stats or name, those values will be passed in the object during the character creation
 
@@ -351,6 +408,8 @@ def character_creation():
         myplayer.mp = 10
         myplayer.knows_magic = True
         myplayer.speed = 7
+        myplayer.spells.append(minor_healing)
+        myplayer.spells.append(fireball)
         start_game()
 
 
@@ -400,30 +459,32 @@ def travel_handler(area, destination):
 # =============== GAME INTERACTIVITY =======================
 
 def prompt():
-    print('\n<What would you like to do?> (go, shop, inventory, quit, save, stats)\n')
-    answers = ['go', 'quit', 'shop', 'inventory', 'save', 'stats', 'xp']
-    action = input('> ')
+    print('\n<What would you like to do?> (go, shop, inventory, quit, save, stats, magic)\n')
+    answers = ['go', 'quit', 'shop', 'inventory', 'save', 'stats', 'xp', 'magic']
+    action = input('> ').lower()
     while action not in answers:
         prompt()
-    if action.lower() == 'go':
+    if action == 'go':
         player_movement()
-    elif action.lower() == 'quit':
+    elif action == 'quit':
         sys.exit()
-    elif action.lower() == 'shop':
+    elif action == 'shop':
         if 'SHOP' in gamemap[myplayer.area][myplayer.position]:
             shop()
         else:
             print('\n<There is no shop here.>')
             print('--------------------------')
             prompt()
-    elif action.lower() == 'inventory':
+    elif action == 'inventory':
         myplayer.display_inventory()
-    elif action.lower() == 'save':
+    elif action == 'save':
         save_game()
-    elif action.lower() == 'stats':
+    elif action == 'stats':
         myplayer.display_stats()
-    elif action.lower() == 'xp':
+    elif action == 'xp':
         myplayer.exp(25, print_location)
+    elif action == 'magic':
+        myplayer.display_magic()
 
 def battle_start(enemy):
     os.system('cls')

@@ -4,6 +4,9 @@ class Item:
         self.name = name
         self.value = value
 
+    def __str__(self):
+        return(self.name)
+
 class Weapon(Item):
     def __init__(self, name, value, damage, speed):
         super().__init__(name, value)
@@ -40,7 +43,6 @@ class Potion(Item):
             player.attack += 1
             print('\nYour strenght increased!')
 
-
 class Armor(Item):
     def __init__(self, name, value, defence_bonus, speed, mana_bonus = 0):
         super().__init__(name, value)
@@ -75,3 +77,41 @@ rejuvenation_potion = Potion('Rejuvenation Potion', value = 50, hp_up = True, mp
 speed_potion = Potion('Speed Potion', value = 15, speed_up = True)
 ironskin_potion = Potion('Ironskin Potion', value = 35, defence_up = True)
 strength_potion = Potion('Strenght Potion', value = 35, attack_up = True)
+
+#================================================================================================================================
+#================================================================================================================================
+
+class Spell:
+    def __init__(self, name, description, level_required, mp_cost):
+        self.name = name
+        self.description = description
+        self.level_required = level_required
+        self.mp_cost = mp_cost
+
+    def __str__(self):
+        return(self.name)
+
+class DamageSpell(Spell):
+    def __init__(self, name, description, level_required, mp_cost, damage):
+        super().__init__(name, description, level_required, mp_cost)
+        self.damage = damage
+
+class HealingSpell(Spell):
+    def __init__(self, name, description, level_required, mp_cost, heal_value):
+        super().__init__(name, description, level_required, mp_cost)
+        self.heal_value = heal_value
+
+
+
+# healing spells
+minor_healing = HealingSpell('Minor Healing', 'Heals 10 HP', 1, 6, 10)
+healing = HealingSpell('Healing', 'Heals 20 HP', 5, 13, 20)
+major_healing = HealingSpell('Full Heal', 'Fully restores health', 10, 30, 999)
+
+#damage spells
+fireball = DamageSpell('Fireball', 'Launches a fireball that deals 5HP damage.', 1, 5, 5)
+frostbite = DamageSpell('Frostbite', 'Casts several ice shards thats strike the enemy and deals 7 HP damage.', 3, 7, 7)
+thunder = DamageSpell('Thunder', 'Strikes an oponent with a bolt of lightning that deals 10 HP damage.', 5, 10, 10)
+flames = DamageSpell('Flames', 'Engulfs the enemy in flames. Deals 15 HP damage.', 7, 15, 15)
+blizzard = DamageSpell('Blizzard', 'Casts a mighty blizzard on the enemy. Deals 20 HP damage.', 10, 20, 20)
+storm = DamageSpell('Storm', 'Cast a mighty storm that hits the enemy with several lightning bolts. Deals 30 HP damage.', 15, 30, 30)

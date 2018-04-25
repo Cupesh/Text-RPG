@@ -1,12 +1,13 @@
 - battle system
 - battle screen
 - inventory screen            DONE
-- learn curses
 - learn textwrap              DONE
-- magic
+- magic                       50% (player obtaining spells while leveling, player spells list, player casting spells)
 - leveling system             DONE
 - create more monsters
 - display player stats window DONE
-- invetory equip/deequip      50% (add/remove from inventory when e/d-e, objects name not printing)
+- invetory equip/deequip      DONE
 - cool text displaying
-- fix the repetition (.lower())
+- fix the repetition (.lower())  50%
+- multithreading (timed events)
+- quest book
