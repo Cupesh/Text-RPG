@@ -1,17 +1,19 @@
 import os
 import sys
 import cmd
-import time
 import random
 import dill
 import textwrap
 from worldmap import gamemap
 from items import *
 
+# custom window size 
 os.system('mode con: cols=100 lines=50')
 width = os.get_terminal_size().columns
 length = os.get_terminal_size().lines
-# ======== CHARACTER CLASS ==========
+
+# ==========================================================================================================================
+# ================================================== CHARACTER CLASS =======================================================
 class Player:
     def __init__(self):
         self.name = ''
@@ -40,6 +42,8 @@ class Player:
         self.xp = 0
         self.next_level = 50
 
+
+# ---------------------------------------------- leveling up --------------------------------------------------------------
     def exp(self, xp_amount, previous_screen):
         self.xp += xp_amount
         print("\n<You gained {} xp!>".format(str(xp_amount)))
@@ -47,27 +51,31 @@ class Player:
             self.next_level += 50 + (self.next_level // 10)
             self.level += 1
             print("\n<You leveled up to level {}!>".format(str(self.level)))
-            self.level_up(previous_screen)
-        input('\n<Continue (Press Enter)>')
-        previous_screen()
+            self.level_up(previous_screen)                                      # If xp reached next level threshold, move to level_up() 
+        input('\n<Continue (Press Enter)>')                                     # otherwise return to the previous screen argument passed 
+        previous_screen()                                                       # to this function.
     
     def level_up(self, previous_screen):
-        a = random.randint(3,5)
-        if self.job == 'Warrior':
-            self.max_hp += a
-            print('\n<Your HP went up by {}!>'.format(str(a)))
-        elif self.job == 'Mage':
+        a = random.randint(3,5)                                                 # Subject to change? Random value of HP and MP increase.
+        if self.job == 'Warrior':                                               # Checking for character's job, warrior has HP increase,
+            self.max_hp += a                                                    # mage has MP increase. Mage alo checks through spells 
+            print('\n<Your HP went up by {}!>'.format(str(a)))                  # whether level requirements was reached and if so, appends
+        elif self.job == 'Mage':                                                # to the player's spells list.
             self.max_mp += a
             print('\n<Your MP went up by {}!>'.format(str(a)))
-        self.hp = self.max_hp
+            for i in all_spells_list:
+                if i.level_required == self.level:
+                    self.spells.append(i)
+                    print('\n<You have learned new spell: {}!>'.format(i.name))  
+        self.hp = self.max_hp                                                   # Making sure that HP isn't higher than MAX HP (MP too)
         self.mp = self.max_mp
-        if self.level % 3 == 0:
+        if self.level % 3 == 0:                                                 # Every third level player can add +1 to a stat
             self.stat_increase(previous_screen)
         input('\n<Continue (Press Enter)>')
-        previous_screen()
+        previous_screen()                                                       # Returns to the previous screen before player leveled up
 
-    def stat_increase(self, previous_screen):
-        options = ['1', '2', '3']
+    def stat_increase(self, previous_screen):                                   # Subject to change? Every 3rd level choose an attribute
+        options = ['1', '2', '3']                                               # to increase.
         print('\n<You can choose an attribute to increase.>')
         print('\n[1] Attack\n[2] Defence\n[3] Speed')
         answer = input('> ')
@@ -83,10 +91,10 @@ class Player:
             self.speed += 1
             print('\n<Your speed went up by 1!>')
         input('\n<Continue (Press Enter)>')
-        previous_screen()
+        previous_screen()                                                       # Return to the previous screen before player leveled up
 
-
-    def display_stats(self):
+# ----------------------------------------------------------- stats --------------------------------------------------------------------
+    def display_stats(self):                                                    # Displays player's stats
         os.system('cls')
         print(self.name.center(width))
         print('{} Level: {}, XP: {}, Next Level: {}'.format(self.job, str(self.level), str(self.xp), str(self.next_level - self.xp)).center(width))
@@ -99,7 +107,7 @@ class Player:
         input('\n<Continue (Press Enter)>')
         print_location()
 
-
+# ------------------------------------------------------ inventory ---------------------------------------------------------------
     def display_inventory(self):
         os.system('cls')
         print('Equipped Weapon: {}'.format(self.equipped_weapon))
@@ -122,47 +130,48 @@ class Player:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
                 print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
-        self.inventory_prompt()
+        self.inventory_prompt()                                                     # ^ Displays inventory and prompts the player
 
     def inventory_prompt(self):
         options = ['1', '2', '3', '4', '5']
-        print('\n[1] Use\n[2] Toss\n[3] Equip\n[4] De-equip\n[5] Leave\n')
+        print('\n[1] Use\n[2] Toss\n[3] Equip\n[4] De-equip\n[5] Leave\n')          # De-equip or unequip, fuck I don't know
         answer = input('> ')
         while answer not in options:
             self.display_inventory
-        if answer == '1':
+        if answer == '1':                                                           # Accessing various inventory functions
             self.inventory_use()
         elif answer == '2':
             self.inventory_toss()
         elif answer == '3':
             self.inventory_equip()
         elif answer == '4':
-            if self.equipped_armor == None and self.equipped_weapon == None:
-                print('\n<Nothing is equipped!>')
+            if self.equipped_armor == None and self.equipped_weapon == None:        # Checks whether player has anything equipped at all
+                print('\n<Nothing is equipped!>')                                   # before even sending to the Equip screen.
                 input('\n<Continue (Press Enter)>')
                 self.display_inventory()
-            self.inventory_deequip()
-        elif answer == '5':
+            else:
+                self.inventory_deequip()                                            # If something's equipped, deequip prompt appears
+        elif answer == '5':                                                         # Leaves back to the game
             print_location()
 
     def inventory_use(self):
-        for i in self.potions_inventory:
-            if i[1] > 1:
+        for i in self.potions_inventory:                                            # Subject to change? So far only potions can be used 
+            if i[1] > 1:                                                            # from the game window print_location().
                 print('{}x {}'.format(i[0].name, str(i[1])))
         print('')
         print('<Use what?> (type \'back\' to return)')
         options = [i[0].name.lower() for i in self.potions_inventory] + ['back']
-        answer = input('> ')
-        while answer.lower() not in options:
-            self.inventory_use()
-        if answer.lower() == 'back':
+        answer = input('> ').lower()                                                # This while-loop is used many times throughout the code
+        while answer not in options:                                                # limiting player's accepted inputs by checking with
+            self.inventory_use()                                                    # 'options' list that contains all acceptable inputs.
+        if answer == 'back':
             self.display_inventory()
-        for i in self.potions_inventory:
-            if answer.lower() == i[0].name.lower():
-                if i[1] > 0:
-                    Potion.use_potion(i[0], self)
-                    i[1] -= 1
-                    self.inventory_use()
+        for i in self.potions_inventory:                                            # My way of handling inventory functions. For loops
+            if answer == i[0].name.lower():                                         # used in the same manner throughout the whole code.
+                if i[1] > 0:                                                        # At first converts any player's input into all lower
+                    Potion.use_potion(i[0], self)                                   # case string and then loops through the particular
+                    i[1] -= 1                                                       # inventory type, converting each item's name into a
+                    self.inventory_use()                                            # lowercase string and then looks for a match.
                 else:
                     ('<You don\'t have that!>')
                     input('\n<Continue (Press Enter)>')
@@ -170,40 +179,35 @@ class Player:
 
     def inventory_toss(self):
         print('\n<Toss what?> (type \'back\' to return)')
-        back = ['back']
-        a = [i[0].name.lower() for i in self.weapons_inventory]
-        b = [i[0].name.lower() for i in self.potions_inventory]
-        c = [i[0].name.lower() for i in self.armors_inventory]
-        options = a + b + c + back
-        answer = input('> ')
-        while answer.lower() not in options:
+        a = [i[0].name.lower() for i in self.weapons_inventory if i[1] > 0]         # My stupid way of making options list, probably don't 
+        b = [i[0].name.lower() for i in self.potions_inventory if i[1] > 0]         # know how to handle lists or I just chose a stupid
+        c = [i[0].name.lower() for i in self.armors_inventory if i[1] > 0]          # inventory handling.
+        options = a + b + c + ['back']
+        answer = input('> ').lower()
+        while answer not in options:
             self.inventory_toss()
-        if answer.lower() == 'back':
+        if answer == 'back':
             self.display_inventory()
         for i in self.weapons_inventory:
-            if i[1] > 0:
+            if answer == i[0].name.lower():
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                self.inventory_toss()
-            else:
-                print('\nYou don\'t have that!')
-                self.inventory_toss()
+                input('\n<Continue (Press Enter)>')
+                self.display_inventory()
         for i in self.potions_inventory:
-            if i[1] > 0:
+            if answer == i[0].name.lower():
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                self.inventory_toss()                 
-            else:
-                print('\nYou don\'t have that!')
-                self.inventory_toss()
+                input('\n<Continue (Press Enter)>')
+                self.display_inventory()                 
         for i in self.armors_inventory:
-            if i[1] > 0:
+            if answer == i[0].name.lower():
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
-                self.inventory_toss()                 
-            else:
-                print('\nYou don\'t have that!')
-                self.inventory_toss()        
+                input('\n<Continue (Press Enter)>')
+                self.display_inventory()                
+        print('\nYou don\'t have that!')
+        self.inventory_toss()        
 
     def inventory_equip(self):
         os.system('cls')
@@ -226,7 +230,7 @@ class Player:
         b = [i[0].name.lower() for i in self.armors_inventory if i[1] > 0]
         options = a + b + back
         answer = input('> ').lower()
-        while answer.lower() not in options:
+        while answer not in options:
             self.inventory_equip()
         if answer == 'back':
             self.display_inventory()
@@ -311,21 +315,51 @@ class Player:
         input('\n<Continue (Press Enter)>')
         self.display_inventory()
 
-    
+ # ----------------------------------------------------- magic ----------------------------------------------------------------   
     def display_magic(self):
         os.system('cls')
+        print('HP: {}\{}     MP: {}\{}'.format(self.max_hp, self.hp, self.max_mp, self.mp).center(width))
         print('{:-^99}'.format(' Spells '))
         for i in self.spells:
-            a = ' ' * (30 - len(i.name))
-            print('Name: {}   {}{}Cost: {} MP'.format(i.name, i.description, a, i.mp_cost))
+            a = ' ' * (15 - len(i.name))
+            b = ' ' * (60 - len(i.description))
+            print('{}{}{}{}Cost: {} MP'.format(i.name, a, i.description, b, i.mp_cost))
+        print('\n' * 2)
+        print('\n[1] Use Spell\n[2] Back')
+        options = ['1', '2']
+        answer = input('> ')
+        while answer not in options:
+            self.display_magic()
+        if answer == '2':
+            print_location()
+        elif answer == '1':
+            self.use_spell()
+    
+    def use_spell(self):
+        options = ['minor healing', 'healing', 'major healing', 'back']
+        print('\n<Use what? (type \'back\' to return)>')
+        answer = input('> ').lower()
+        while answer not in options:
+            print('\n<Can\'t use that. Try a healing spell.>')
+            self.use_spell()
+        if answer == 'back':
+            self.display_magic()
+        for i in self.spells:
+            if answer == i.name.lower():
+                if self.mp < i.mp_cost:
+                    print('\n<You don\'t have enough mana!>')
+                else:
+                    i.heal_spell_cast(myplayer)
         input('\n<Continue (Press Enter)>')
-        print_location()
+        self.display_magic()
+
 
 myplayer = Player()  # character created with no stats or name, those values will be passed in the object during the character creation
 
-# ========== GAME FUNCTIONALITY ====================
+# =====================================================================================================================================
+# ======================================================== GAME FUNCTIONALITY =========================================================
 
-
+# ---------------------------------------------------- main menu, save, load, help ----------------------------------------------------
 def title_screen():
     os.system('cls')
     print('\n' * 10)
@@ -353,7 +387,6 @@ def title_screen():
     else:
         title_screen()
 
-
 def save_game():
     dill.dump_session('savefile.pkl')
     print('\nGame has been saved!')
@@ -372,35 +405,40 @@ def load_game():
         input('<Return (Press Enter)>')
         title_screen()
 
-
-
-
 def help_menu():
     pass
 
 
+# ---------------------------------------------------- starting the game, character creation ------------------------------------------
 def character_creation():
     os.system('cls') # clears the screen
     print('\n' * 24)
     print('What is your name?\n'.center(width))
     playername = input('> ')
+    if len(playername) < 1:
+        print('<You need to enter a name.>')
+        input('\n<Continue (Press Enter)>')
+        character_creation()
     myplayer.name = playername     # passes name into player object
     
     os.system('cls')
     print('\n' * 24)
+    options = ['1', '2']
     print('What is your job?'.center(width))
     print('[1] Warrior'.center(width))
     print('[2] Mage'.center(96))
-    playerjob = input('\n> ')
-    if playerjob.lower() in ['1', 'warrior']:
+    answer = input('\n> ')
+    while answer not in options:
+        character_creation()
+    if answer == '1':
         myplayer.job = 'Warrior'
         myplayer.max_hp = 20
         myplayer.hp = 20
         myplayer.max_mp = 0
         myplayer.mp = 0
-        start_game()
+        game_introduction()
 
-    elif playerjob.lower() in ['2', 'mage']:
+    elif answer == '2':
         myplayer.job = 'Mage'
         myplayer.max_hp = 15
         myplayer.hp = 15
@@ -410,10 +448,9 @@ def character_creation():
         myplayer.speed = 7
         myplayer.spells.append(minor_healing)
         myplayer.spells.append(fireball)
-        start_game()
+        game_introduction()
 
-
-def start_game():
+def game_introduction():
     os.system('cls')
     print('\n' * 24)
     print('Wecome, {} the {}!'.format(myplayer.name, myplayer.job).center(width))
@@ -423,6 +460,7 @@ def start_game():
     print_location()
 
 
+# ------------------------------------------------------ main game window  ------------------------------------------------------------
 def print_location():
     os.system('cls')
     print('')
@@ -434,30 +472,14 @@ def print_location():
     else:
         print(gamemap[myplayer.area][myplayer.position]['DESCRIPTION'])
         if 'ENEMY' in gamemap[myplayer.area][myplayer.position]:
-            time.sleep(5)
-            battle_start(gamemap[myplayer.area][myplayer.position]['ENEMY'])
+            battle_start()
         else:
             prompt()
 
-def movement_handler(destination):
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
-    myplayer.position = destination
-    print_location()
+# ======================================================================================================================================
+# ======================================================== GAME INTERACTIVITY ==========================================================
 
-
-def travel_handler(area, destination):
-    print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']).center(width))
-    input('\n<Continue (Press Enter)>'.center(width))
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
-    myplayer.area = area
-    myplayer.position = destination
-    print_location()
-
-
-
-
-# =============== GAME INTERACTIVITY =======================
-
+# -------------------------------------------------------- main prompt window ----------------------------------------------------------
 def prompt():
     print('\n<What would you like to do?> (go, shop, inventory, quit, save, stats, magic)\n')
     answers = ['go', 'quit', 'shop', 'inventory', 'save', 'stats', 'xp', 'magic']
@@ -486,49 +508,7 @@ def prompt():
     elif action == 'magic':
         myplayer.display_magic()
 
-def battle_start(enemy):
-    os.system('cls')
-    a = (myplayer.name + '     ' + enemy.name)
-    print('<{} is attacking you!>\n'.format(enemy.name))
-    while myplayer.hp > 0:
-        print(a)
-        print(str(myplayer.hp) + '/' + str(myplayer.max_hp) + (' ' * (len(a) -10)) + str(enemy.hp) + '/' + str(enemy.max_hp))
-        print('\n\n\n')
-        print('<What would you like to do?>')
-        print('[1] Attack\n[2] Magic\n[3] Run')
-        action = input('> ')
-
-        if action == '1':
-            damage = myplayer.attack - enemy.defence
-            enemy.hp -= damage
-            if enemy.hp > 0:
-                enemy_damage = enemy.attack - myplayer.defence            
-                if enemy_damage <= 0:
-                    enemy_damage = 1
-                myplayer.hp -= enemy_damage
-            else:
-                print('<You killed {}.>'.format(enemy.name))
-                print('<You have collected {} gold.>'.format(str(enemy.gold)))
-                myplayer.gold += enemy.gold
-                gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
-                gamemap[myplayer.area][myplayer.position]['ENEMY'] = None
-                time.sleep(5)
-                print_location()
-        elif action == '2':
-            cast_spell()
-        elif action == '3':
-            myplayer.position = 'a1'
-            print_location()
-
-    print("<You died. Game over.>")
-    time.sleep(3)
-    title_screen()
-                
-
-def cast_spell():
-    pass
-
-
+# ----------------------------------------------------------- movement ------------------------------------------------------------------
 def player_movement():
     print('\n<Go where?> (north, south, east, west, cancel)\n')
     answers = ['north', 'south', 'east', 'west', 'up', 'down', 'left', 'right', 'shop']
@@ -588,7 +568,26 @@ def player_movement():
             print("<You cannot go there!>")
             player_movement()
 
+def movement_handler(destination):
+    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
+    myplayer.position = destination
+    print_location()
 
+def travel_handler(area, destination):
+    print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']).center(width))
+    input('\n<Continue (Press Enter)>'.center(width))
+    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
+    myplayer.area = area
+    myplayer.position = destination
+    print_location()
+
+def battle_start():
+    pass
+
+def cast_spell():
+    pass
+
+# -------------------------------------------------------------------- shop ---------------------------------------------------------------
 def shop():
     os.system('cls')
     new_position = gamemap[myplayer.area][myplayer.position]['SHOP']
@@ -657,7 +656,6 @@ def shop_window(npc):
         shop_sell(npc)
     elif answer == '3':
         shop_prompt(npc)
-
 
 def shop_buy(npc):
     print('\n<Buy what?> (type \'back\' to return)')
@@ -790,9 +788,7 @@ def shop_sell(npc):
                 input('\n<Continue (Press Enter)>')
                 shop_window(npc)
 
-
-
-
+# ----------------------------------------------------------------- NPC interaction -------------------------------------------------------
 def dialogue(npc, screen):
     previous_screen = screen
     os.system('cls')
