@@ -2,12 +2,15 @@
 - battle screen
 - inventory screen            DONE
 - learn textwrap              DONE
-- magic                       50% (player obtaining spells while leveling, player spells list, player casting spells)
+- magic                       DONE
 - leveling system             DONE
-- create more monsters
 - display player stats window DONE
 - invetory equip/deequip      DONE
 - cool text displaying
-- fix the repetition (.lower())  50%
+- fix the repetition (.lower())  75%
 - multithreading (timed events)
 - quest book
+- organise the code           DONE
+- commenting the code         50%
+- prompt window numbered rather typed
+- print_location() shows player's hp,mp,level...
