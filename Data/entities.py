@@ -58,13 +58,57 @@ shopkeep.npc_add_item(mana_potion, 3)
 shopkeep.npc_add_item(strength_potion, 3)
 # ===================== ENEMIES ==============================
 
+class GiantRat:
+    def __init__(self):
+        self.name = 'Giant Rat'
+        self.max_hp = random.randint(3, 5)
+        self.hp = self.max_hp
+        self.attack = random.randint(1, 2)
+        self.defence = random.randint(1, 2)
+        self.speed = random.randint(5, 7)
+        self.gold = random.randint(0, 2)
+        self.xp = 3
+
 class Goblin:
     def __init__(self):
         self.name = 'Goblin'
         self.max_hp = random.randint(5, 7)
         self.hp = self.max_hp
-        self.attack = random.randint(3, 5)
-        self.defence = random.randint(2, 4)
+        self.attack = random.randint(3, 4)
+        self.defence = random.randint(2, 3)
         self.speed = random.randint(4, 5)
         self.gold = random.randint(0, 5)
         self.xp = 5
+
+class Skeleton:
+    def __init__(self):
+        self.name = 'Skeleton'
+        self.max_hp = random.randint(6, 8)
+        self.hp = self.max_hp
+        self.attack = random.randint(3, 5)
+        self.defence = random.randint(2, 4)
+        self.speed = random.randint(3, 5)
+        self.gold = random.randint(0, 6)
+        self.xp = 7
+
+class Zombie:
+    def __init__(self):
+        self.name = 'Zombie'
+        self.max_hp = random.randint(10, 15)
+        self.hp = self.max_hp
+        self.attack = random.randint(2, 5)
+        self.defence = random.randint(2, 4)
+        self.speed = random.randint(0, 1)
+        self.gold = random.randint(2, 8)
+        self.xp = 9
+       
+class BanditGreenhorn:
+    def __init__(self):
+        self.name = 'Bandit greenhorn'
+        self.max_hp = random.randint(7, 10)
+        self.hp = self.max_hp
+        self.attack = random.randint(3, 5)
+        self.defence = random.randint(2, 4)
+        self.speed = random.randint(4, 6)
+        self.gold = random.randint(2, 7)
+        self.xp = 8
