@@ -11,6 +11,6 @@
 - multithreading (timed events)
 - quest book
 - organise the code           DONE
-- commenting the code         50%
-- prompt window numbered rather typed
+- commenting the code         25%
+- prompt window numbered rather than typed
 - print_location() shows player's hp,mp,level...
