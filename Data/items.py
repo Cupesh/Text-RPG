@@ -101,6 +101,12 @@ class HealingSpell(Spell):
         super().__init__(name, description, level_required, mp_cost)
         self.heal_value = heal_value
 
+    def heal_spell_cast(self, player):
+        player.hp += self.heal_value
+        if player.hp > player.max_hp:
+            player.hp = player.max_hp
+        player.mp -= self.mp_cost
+        print('\n<You have used {}!>'.format(self.name))
 
 
 # healing spells
@@ -115,3 +121,5 @@ thunder = DamageSpell('Thunder', 'Strikes an oponent with a bolt of lightning th
 flames = DamageSpell('Flames', 'Engulfs the enemy in flames. Deals 15 HP damage.', 7, 15, 15)
 blizzard = DamageSpell('Blizzard', 'Casts a mighty blizzard on the enemy. Deals 20 HP damage.', 10, 20, 20)
 storm = DamageSpell('Storm', 'Cast a mighty storm that hits the enemy with several lightning bolts. Deals 30 HP damage.', 15, 30, 30)
+
+all_spells_list = [frostbite, thunder, flames, blizzard, storm, healing, major_healing]
