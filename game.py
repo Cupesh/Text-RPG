@@ -211,13 +211,13 @@ class Player:
 
     def inventory_equip(self):
         os.system('cls')
-        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))
-        print('Equipped Armor: {}'.format(self.equipped_armor))
+        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))                 # Displays equipped weapon and armor. self.name attribute 
+        print('Equipped Armor: {}'.format(self.equipped_armor))                     # not called because of __str__ method in Item class
         print('')
-        print('{:-^99}'.format(' Weapons '))
-        for i in self.weapons_inventory:
+        print('{:-^99}'.format(' Weapons '))                                        # Prints 'Weapons' surrounded with 99 '-'. Nice format
+        for i in self.weapons_inventory:                                            # function.
             if i[1] > 0:
-                c = ' ' * (30 - len(i[0].name))
+                c = ' ' * (30 - len(i[0].name))                                     # var 'c' creates equal allignement
                 print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
         print('{:-^99}'.format(' Armors '))
         for i in self.armors_inventory:
@@ -235,17 +235,17 @@ class Player:
         if answer == 'back':
             self.display_inventory()
         if answer in a:
-            if self.equipped_weapon != None:
-                print('\nYou de-equipped {}'.format(self.equipped_weapon.name))
+            if self.equipped_weapon != None:                                        # If player already hold an equipped weapon, it will
+                print('\nYou de-equipped {}'.format(self.equipped_weapon.name))     # first unequip it before equiping the new one.
                 self.attack -= self.equipped_weapon.damage
-                self.speed -= self.equipped_weapon.speed
+                self.speed -= self.equipped_weapon.speed                            # Equipped weapon's effects removed from the player
                 for i in self.weapons_inventory:
-                    if i[0].name == self.equipped_weapon.name:
-                        i[1] += 1
+                    if i[0].name == self.equipped_weapon.name:                      # Adds the weapon to the inventory after removing
+                        i[1] += 1                                                   # from hand.
                 self.equipped_weapon = None
             for i in self.weapons_inventory:
-                if answer == i[0].name.lower():
-                    self.equipped_weapon = i[0]
+                if answer == i[0].name.lower():                                     # Equips new weapon, adds its effects to the player
+                    self.equipped_weapon = i[0]                                     # and removes from the inventory.
                     i[1] -= 1
                     self.attack += i[0].damage
                     self.speed += i[0].speed
@@ -281,8 +281,8 @@ class Player:
         print('Equipped Armor: {}'.format(self.equipped_armor))
         print('')
         print('<De-equip what?> (type \'back\' to return)')
-        if self.equipped_weapon == None:
-            a = None
+        if self.equipped_weapon == None:                                                # The way I handled the 'None has no .name attribute
+            a = None                                                                    # bug'. Probably temporary, but it works.
         else:
             a = self.equipped_weapon.name.lower()
         if self.equipped_armor == None:
@@ -321,7 +321,7 @@ class Player:
         print('HP: {}\{}     MP: {}\{}'.format(self.max_hp, self.hp, self.max_mp, self.mp).center(width))
         print('{:-^99}'.format(' Spells '))
         for i in self.spells:
-            a = ' ' * (15 - len(i.name))
+            a = ' ' * (15 - len(i.name))                                                # Variables to handle alignements.
             b = ' ' * (60 - len(i.description))
             print('{}{}{}{}Cost: {} MP'.format(i.name, a, i.description, b, i.mp_cost))
         print('\n' * 2)
@@ -335,10 +335,10 @@ class Player:
         elif answer == '1':
             self.use_spell()
     
-    def use_spell(self):
-        options = ['minor healing', 'healing', 'major healing', 'back']
-        print('\n<Use what? (type \'back\' to return)>')
-        answer = input('> ').lower()
+    def use_spell(self):                                                                # So far only healing spells can be used.
+        options = ['minor healing', 'healing', 'major healing', 'back']                 # Not sure what about other spells...
+        print('\n<Use what? (type \'back\' to return)>')                                # Has to be typed. Probably will import
+        answer = input('> ').lower()                                                    # numbered prompt.
         while answer not in options:
             print('\n<Can\'t use that. Try a healing spell.>')
             self.use_spell()
@@ -346,7 +346,7 @@ class Player:
             self.display_magic()
         for i in self.spells:
             if answer == i.name.lower():
-                if self.mp < i.mp_cost:
+                if self.mp < i.mp_cost:                                                 # Checking if player has enough mana.
                     print('\n<You don\'t have enough mana!>')
                 else:
                     i.heal_spell_cast(myplayer)
@@ -363,8 +363,8 @@ myplayer = Player()  # character created with no stats or name, those values wil
 def title_screen():
     os.system('cls')
     print('\n' * 10)
-    print('=========================================='.center(width))
-    print('==  Welcome to a Python Text Based RPG  =='.center(width))
+    print('=========================================='.center(width))                   # Main menu, possibly some cool ASCII image
+    print('==  Welcome to a Python Text Based RPG  =='.center(width))                   # when actual game title is made.
     print('==                                      =='.center(width))
     print('==      This is a learning project.     =='.center(width))
     print('==                                      =='.center(width))
@@ -373,7 +373,7 @@ def title_screen():
     print('')
     print('[1] Start Game'.center(width))
     print('[2] Load Game'.center(width))
-    print('[3] Help     '.center(100))
+    print('[3] Help     '.center(width))
     print('[4] Quit Game'.center(width))
     option = input('\n> ')
     if option.lower() in ['1', 'start']:
@@ -388,13 +388,13 @@ def title_screen():
         title_screen()
 
 def save_game():
-    dill.dump_session('savefile.pkl')
-    print('\nGame has been saved!')
+    dill.dump_session('savefile.pkl')                                                   # Using dill library for state saving. Creates 
+    print('\nGame has been saved!')                                                     # .pkl file with save state.
     input('<Continue (Press Enter)>')
     print_location()
 
 def load_game():
-    if os.path.exists('savefile.pkl') == True:
+    if os.path.exists('savefile.pkl') == True:                                          # Checks whether .pkl file exists.
         dill.load_session('savefile.pkl')
         print('Game succesfully loaded!')
         input('<Continue (Press Enter)>')
@@ -411,15 +411,15 @@ def help_menu():
 
 # ---------------------------------------------------- starting the game, character creation ------------------------------------------
 def character_creation():
-    os.system('cls') # clears the screen
-    print('\n' * 24)
+    os.system('cls')                                                                    # clears the screen
+    print('\n' * 24)                                                                    # Don't know how to center vertically.
     print('What is your name?\n'.center(width))
     playername = input('> ')
-    if len(playername) < 1:
+    if len(playername) < 1:                                                             # Making sure player entered something.
         print('<You need to enter a name.>')
         input('\n<Continue (Press Enter)>')
         character_creation()
-    myplayer.name = playername     # passes name into player object
+    myplayer.name = playername                                                          # passes name into player object
     
     os.system('cls')
     print('\n' * 24)
@@ -430,7 +430,7 @@ def character_creation():
     answer = input('\n> ')
     while answer not in options:
         character_creation()
-    if answer == '1':
+    if answer == '1':                                                                   # Job values are a subject to change.
         myplayer.job = 'Warrior'
         myplayer.max_hp = 20
         myplayer.hp = 20
@@ -450,7 +450,7 @@ def character_creation():
         myplayer.spells.append(fireball)
         game_introduction()
 
-def game_introduction():
+def game_introduction():                                                                 # Welcoming screen
     os.system('cls')
     print('\n' * 24)
     print('Wecome, {} the {}!'.format(myplayer.name, myplayer.job).center(width))
@@ -461,17 +461,17 @@ def game_introduction():
 
 
 # ------------------------------------------------------ main game window  ------------------------------------------------------------
-def print_location():
+def print_location():                                                                   # This is a main game window.
     os.system('cls')
     print('')
-    print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
-    print('')
-    if gamemap[myplayer.area][myplayer.position]['SOLVED']:
-        print(gamemap[myplayer.area][myplayer.position]['SOLVED_DESCRIPTION'])
+    print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
+    print('')                                                                           # pulls out location name.
+    if gamemap[myplayer.area][myplayer.position]['SOLVED']:                             # Checks whether player already visited this location
+        print(gamemap[myplayer.area][myplayer.position]['SOLVED_DESCRIPTION'])          # before, for a different message to display.
         prompt()
     else:
-        print(gamemap[myplayer.area][myplayer.position]['DESCRIPTION'])
-        if 'ENEMY' in gamemap[myplayer.area][myplayer.position]:
+        print(gamemap[myplayer.area][myplayer.position]['DESCRIPTION'])                 # Prints out first-time-visit message and then 
+        if 'ENEMY' in gamemap[myplayer.area][myplayer.position]:                        # checks whether location has an enemy present.
             battle_start()
         else:
             prompt()
@@ -480,7 +480,7 @@ def print_location():
 # ======================================================== GAME INTERACTIVITY ==========================================================
 
 # -------------------------------------------------------- main prompt window ----------------------------------------------------------
-def prompt():
+def prompt():                                                                           # Main prompt window.
     print('\n<What would you like to do?> (go, shop, inventory, quit, save, stats, magic)\n')
     answers = ['go', 'quit', 'shop', 'inventory', 'save', 'stats', 'xp', 'magic']
     action = input('> ').lower()
@@ -511,22 +511,19 @@ def prompt():
 # ----------------------------------------------------------- movement ------------------------------------------------------------------
 def player_movement():
     print('\n<Go where?> (north, south, east, west, cancel)\n')
-    answers = ['north', 'south', 'east', 'west', 'up', 'down', 'left', 'right', 'shop']
-    direction = input('> ')
-
-    if direction.lower() == 'cancel':
+    answers = ['north', 'south', 'east', 'west', 'up', 'down', 'left', 'right', 'shop']     # will change to n,s,e,w probably
+    direction = input('> ').lower()
+    if direction == 'cancel':
         print_location()
-
     while direction not in answers:
         player_movement()
-
-    if direction.lower() in ['north', 'up']:
-        if gamemap[myplayer.area][myplayer.position]['UP'] == True:
-            area = gamemap[myplayer.area][myplayer.position]['AREA']
-            destination = gamemap[myplayer.area][myplayer.position]['GRID']
-            travel_handler(area, destination)
-        elif gamemap[myplayer.area][myplayer.position]['UP']:
-            destination = gamemap[myplayer.area][myplayer.position]['UP']
+    if direction in ['north', 'up']:                                                        # Checks for direction, whether player can
+        if gamemap[myplayer.area][myplayer.position]['UP'] == True:                         # travel from current grid to a chosen direction.
+            area = gamemap[myplayer.area][myplayer.position]['AREA']                        # None will tell player that there's nothing
+            destination = gamemap[myplayer.area][myplayer.position]['GRID']                 # there. 'True' means that chosen direction
+            travel_handler(area, destination)                                               # is a travel direction.
+        elif gamemap[myplayer.area][myplayer.position]['UP']:                               # String means it's just moving into a different
+            destination = gamemap[myplayer.area][myplayer.position]['UP']                   # grid but in the same area.
             movement_handler(destination)
         else:
             print("<You cannot go there!>")
@@ -568,19 +565,20 @@ def player_movement():
             print("<You cannot go there!>")
             player_movement()
 
-def movement_handler(destination):
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
+def movement_handler(destination):                                                      # Marks the previsous grid as visisted and moves
+    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True                          # to a new grid.
     myplayer.position = destination
     print_location()
 
 def travel_handler(area, destination):
     print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']).center(width))
     input('\n<Continue (Press Enter)>'.center(width))
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True
-    myplayer.area = area
+    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True                          # Marks the previous grid as visited and moves to
+    myplayer.area = area                                                                # a new area and its starting grid.
     myplayer.position = destination
     print_location()
 
+# ------------------------------------------------------------------- Battling -------------------------------------------------------------
 def battle_start():
     pass
 
@@ -590,34 +588,34 @@ def cast_spell():
 # -------------------------------------------------------------------- shop ---------------------------------------------------------------
 def shop():
     os.system('cls')
-    new_position = gamemap[myplayer.area][myplayer.position]['SHOP']
-    myplayer.position = new_position
-    npc = gamemap[myplayer.area][myplayer.position]['NPC']
+    myplayer.position = gamemap[myplayer.area][myplayer.position]['SHOP']               # allocates player's new position
+    npc = gamemap[myplayer.area][myplayer.position]['NPC']                              # Searches for the npc
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
     print('')
-    print('{}: {}'.format(npc.name, npc.dialogue['WELCOME']))
+    print('{}: {}'.format(npc.name, npc.dialogue['WELCOME']))                           # Shows npc's welcoming message
     print('')
     shop_prompt(npc)
 
 def shop_prompt(npc):
     print('<What would you like to do?>')
     print('[1] Shop\n[2] Talk\n[3] Leave')
+    options = ['1', '2', '3']
     answer = input('> ')
+    while answer not in options:
+        shop_prompt(npc)        
     if answer == '1':
         shop_window(npc)
     elif answer == '2':
         dialogue(npc, shop_prompt)
     elif answer == '3':
-        print('\n{}: {}'.format(npc.name, npc.dialogue['LEAVE']))
-        myplayer.position = gamemap[myplayer.area][myplayer.position]['LEAVE']
+        print('\n{}: {}'.format(npc.name, npc.dialogue['LEAVE']))                       # Prints npc's goodbye message
+        myplayer.position = gamemap[myplayer.area][myplayer.position]['LEAVE']          # Finds the leaving grid from the shop
         input('\n<Continue (Press Enter)>')
         print_location()
-    else:
-        shop_prompt(npc)
 
 def shop_window(npc):
     os.system('cls')
-    print(npc.name.upper().center(width))
+    print(npc.name.upper().center(width))                                               # Npc's name in the center
     print('-' * 100)
     print('{:_^99}'.format(' Weapons '))
     print('')
@@ -660,73 +658,54 @@ def shop_window(npc):
 def shop_buy(npc):
     print('\n<Buy what?> (type \'back\' to return)')
     back = ['back']
-    a = [i[0].name.lower() for i in npc.weapons_inventory]
-    b = [i[0].name.lower() for i in npc.potions_inventory]
-    c = [i[0].name.lower() for i in npc.armors_inventory]
-    answers = a + b + c + back
-    answer = input('> ')
-    while answer not in answers:
+    a = [i[0].name.lower() for i in npc.weapons_inventory if i[1] > 0]
+    b = [i[0].name.lower() for i in npc.potions_inventory if i[1] > 0]
+    c = [i[0].name.lower() for i in npc.armors_inventory if i[1] > 0]
+    options = a + b + c + back
+    answer = input('> ').lower()
+    while answer not in options:
         print('\nI don\'t have that.')
         shop_buy(npc)
-    if answer.lower() == 'back':
+    if answer == 'back':
         shop_window(npc)
     for i in npc.weapons_inventory:
-        if answer.lower() == i[0].name.lower():
-            if i[1] > 0:
-                if myplayer.gold >= i[0].value:
-                    print('\nYou bought {}!'.format(i[0].name))
-                    myplayer.gold -= i[0].value
-                    i[1] -= 1
-                    for i in myplayer.weapons_inventory:
-                        if i[0].name.lower() == answer:
-                            i[1] += 1
-                    input('\n<Continue (Press Enter)>')
-                    shop_window(npc)
-                else:
-                    print("\nYou don\'t have enough gold!")
-                    shop_buy(npc)
+        if answer == i[0].name.lower():
+            if myplayer.gold >= i[0].value:                                         # Checks if player has enough gold for the transaction
+                print('\nYou bought {}!'.format(i[0].name))
+                myplayer.gold -= i[0].value                                         # Takes away the gold from the player
+                i[1] -= 1                                                           # takes away the item from the npc
+                for i in myplayer.weapons_inventory:                                # Adds the item to the player's inventory
+                    if i[0].name.lower() == answer:
+                        i[1] += 1
             else:
-                print('\nI\'m sorry, I\'m out of stock of this item.')
+                print("\nYou don\'t have enough gold!")
                 shop_buy(npc)
-        else:
-            pass
     for i in npc.potions_inventory:
         if answer == i[0].name.lower():
-            if i[1] > 0:
-                if myplayer.gold >= i[0].value:
-                    print('\nYou bought {}!'.format(i[0].name))
-                    myplayer.gold -= i[0].value
-                    i[1] -= 1
-                    for i in myplayer.potions_inventory:
-                        if i[0].name.lower() == answer:
-                            i[1] += 1
-                    input('\n<Continue (Press Enter)>')
-                    shop_window(npc)
-                else:
-                    print("\nYou don\'t have enough gold!")
-                    shop_buy(npc)
+            if myplayer.gold >= i[0].value:
+                print('\nYou bought {}!'.format(i[0].name))
+                myplayer.gold -= i[0].value
+                i[1] -= 1
+                for i in myplayer.potions_inventory:
+                    if i[0].name.lower() == answer:
+                        i[1] += 1
             else:
-                print('\nI\'m sorry, I\'m out of stock of this item.')
+                print("\nYou don\'t have enough gold!")
                 shop_buy(npc)
-
     for i in npc.armors_inventory:
         if answer == i[0].name.lower():
-            if i[1] > 0:
-                if myplayer.gold >= i[0].value:
-                    print('\nYou bought {}!'.format(i[0].name))
-                    myplayer.gold -= i[0].value
-                    i[1] -= 1
-                    for i in myplayer.armors_inventory:
-                        if i[0].name.lower() == answer:
-                            i[1] += 1
-                    input('\n<Continue (Press Enter)>')        
-                    shop_window(npc)
-                else:
-                    print("\nYou don\'t have enough gold!")
-                    shop_buy(npc)
+            if myplayer.gold >= i[0].value:
+                print('\nYou bought {}!'.format(i[0].name))
+                myplayer.gold -= i[0].value
+                i[1] -= 1
+                for i in myplayer.armors_inventory:
+                    if i[0].name.lower() == answer:
+                        i[1] += 1
             else:
-                print('\nI\'m sorry, I\'m out of stock of this item.')
+                print("\nYou don\'t have enough gold!")
                 shop_buy(npc)
+    input('\n<Continue (Press Enter)>')        
+    shop_window(npc)
 
 def shop_sell(npc):
     os.system('cls')
@@ -734,7 +713,7 @@ def shop_sell(npc):
     for i in myplayer.weapons_inventory:
         if i[1] > 0:
             options.append(i[0].name.lower())
-            selling_price = str(i[0].value // 3)
+            selling_price = str(i[0].value // 3)                                        # Selling value is a third of original value
             print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
     for i in myplayer.potions_inventory:
         if i[1] > 0:
@@ -746,70 +725,67 @@ def shop_sell(npc):
             print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
     
     print('\nWhat do you want to sell? <(type \'back\' to go back')
-    answer = input('\n> ')
-    while answer.lower() not in options:
+    answer = input('\n> ').lower()
+    while answer not in options:
+        print('\nYou don\'t have that.')
+        input('\n<Continue (Press Enter)>')         
         shop_sell(npc)
     if answer == 'back':
         shop_window(npc)
     for i in myplayer.weapons_inventory:
-        if answer.lower() == i[0].name.lower():
-            if i[1] > 0:
-                selling_price = i[0].value // 3
-                print('\nYou sold {}!'.format(i[0].name))
-                myplayer.gold += selling_price
-                i[1] -= 1
-                for i in npc.weapons_inventory:
-                    if i[0].name.lower() == answer:
-                        i[1] += 1
-                input('\n<Continue (Press Enter)>')
-                shop_window(npc)
+        if answer == i[0].name.lower():
+            selling_price = i[0].value // 3
+            print('\nYou sold {}!'.format(i[0].name))
+            myplayer.gold += selling_price
+            i[1] -= 1
+            for i in npc.weapons_inventory:
+                if i[0].name.lower() == answer:
+                    i[1] += 1
+
     for i in myplayer.potions_inventory:
-        if answer.lower() == i[0].name.lower():
-            if i[1] > 0:
-                selling_price = i[0].value // 3
-                print('\nYou sold {}!'.format(i[0].name))
-                myplayer.gold += selling_price
-                i[1] -= 1
-                for i in npc.potions_inventory:
-                    if i[0].name.lower() == answer:
-                        i[1] += 1
-                input('\n<Continue (Press Enter)>')
-                shop_window(npc)
+        if answer == i[0].name.lower():
+            selling_price = i[0].value // 3
+            print('\nYou sold {}!'.format(i[0].name))
+            myplayer.gold += selling_price
+            i[1] -= 1
+            for i in npc.potions_inventory:
+                if i[0].name.lower() == answer:
+                    i[1] += 1
+
     for i in myplayer.armors_inventory:
-        if answer.lower() == i[0].name.lower():
-            if i[1] > 0:
-                selling_price = i[0].value // 3
-                print('\nYou sold {}!'.format(i[0].name))
-                myplayer.gold += selling_price
-                i[1] -= 1
-                for i in npc.armors_inventory:
-                    if i[0].name.lower() == answer:
-                        i[1] += 1
-                input('\n<Continue (Press Enter)>')
-                shop_window(npc)
+        if answer == i[0].name.lower():
+            selling_price = i[0].value // 3
+            print('\nYou sold {}!'.format(i[0].name))
+            myplayer.gold += selling_price
+            i[1] -= 1
+            for i in npc.armors_inventory:
+                if i[0].name.lower() == answer:
+                    i[1] += 1
+    input('\n<Continue (Press Enter)>')
+    shop_window(npc)
 
 # ----------------------------------------------------------------- NPC interaction -------------------------------------------------------
 def dialogue(npc, screen):
-    previous_screen = screen
+    previous_screen = screen                                            # Takes the previous screen attribute to know where to return after
     os.system('cls')
     print(npc.name)
     print('-----------------------------------\n')
     count = 1
     options = ['1']
-    for i in npc.dialogue['DIALOGUE']:
-        print('[{}] {}'.format(count, i[0]))
-        count += 1
-        options.append(str(count))
+    for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
+        print('[{}] {}'.format(count, i[0]))                            # associated number.
+        count += 1                                                      # 'Count' var is the associated number with player's input
+        options.append(str(count))                                      # append the number to options
     print('[{}] Leave'.format(count))
 
     answer = input('> ')
     while answer not in options:
         dialogue(npc, previous_screen)
-    if answer.lower() == options[-1]:
+    if answer.lower() == options[-1]:                                   # The last option is alway 'back'
         previous_screen(npc)
 
-    print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0] ))
-    print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))
+    print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0] ))    # Looks up for the associated answer in npc's
+    print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))          # dialogues.
     input('\n<Back (Press Enter)>')
     dialogue(npc, previous_screen)
 

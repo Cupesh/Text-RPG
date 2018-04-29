@@ -7,10 +7,18 @@
 - display player stats window DONE
 - invetory equip/deequip      DONE
 - cool text displaying
-- fix the repetition (.lower())  75%
-- multithreading (timed events)
+- fix the repetition (.lower())DONE
 - quest book
 - organise the code           DONE
-- commenting the code         25%
+- commenting the code         DONE
 - prompt window numbered rather than typed
 - print_location() shows player's hp,mp,level...
+- Help menu
+
+
+
+
+Future minor improvements:
+- fancy title screen
+- multiple save states (with date, name, hp, mp, possibly location too)
+- shop and dialogue needs 'visited' variable, for different welcoming messages
