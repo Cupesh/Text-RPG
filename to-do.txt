@@ -1,18 +1,18 @@
 - battle system
 - battle screen
-- inventory screen            DONE
-- learn textwrap              DONE
-- magic                       DONE
-- leveling system             DONE
-- display player stats window DONE
-- invetory equip/deequip      DONE
+- inventory screen                                  DONE
+- learn textwrap                                    DONE
+- magic                                             DONE
+- leveling system                                   DONE
+- display player stats window                       DONE
+- invetory equip/deequip                            DONE
 - cool text displaying
-- fix the repetition (.lower())DONE
+- fix the repetition (.lower())                     DONE
 - quest book
-- organise the code           DONE
-- commenting the code         DONE
-- prompt window numbered rather than typed
-- print_location() shows player's hp,mp,level...
+- organise the code                                 DONE
+- commenting the code                               DONE
+- prompt window numbered rather than typed          DONE
+- print_location() shows player's hp,mp,level...    DONE
 - Help menu
 
 
