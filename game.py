@@ -463,7 +463,10 @@ def game_introduction():                                                        
 # ------------------------------------------------------ main game window  ------------------------------------------------------------
 def print_location():                                                                   # This is a main game window.
     os.system('cls')
-    print('')
+    print(('-' * 40).center(99))
+    print('HP: {}\{} MP: {}\{}'.format(myplayer.max_hp, myplayer.hp, myplayer.max_mp, myplayer.mp).center(width))
+    print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, myplayer.next_level).center(99))
+    print(('-' * 40).center(width))
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
     print('')                                                                           # pulls out location name.
     if gamemap[myplayer.area][myplayer.position]['SOLVED']:                             # Checks whether player already visited this location
@@ -481,31 +484,36 @@ def print_location():                                                           
 
 # -------------------------------------------------------- main prompt window ----------------------------------------------------------
 def prompt():                                                                           # Main prompt window.
-    print('\n<What would you like to do?> (go, shop, inventory, quit, save, stats, magic)\n')
-    answers = ['go', 'quit', 'shop', 'inventory', 'save', 'stats', 'xp', 'magic']
-    action = input('> ').lower()
-    while action not in answers:
+    print('\n<What would you like to do?>\n')
+    menu = ['Go']
+    end_menu = ['Player', 'Inventory', 'Save', 'Quit']
+    options = ['g', 'q', 'i', 's', 'p']
+    if myplayer.job == 'Mage':
+        options.append('m')
+        end_menu.insert(0, 'Magic')
+    if 'SHOP' in gamemap[myplayer.area][myplayer.position]:
+        options.append('t')
+        menu.append('Trader')
+    for i in menu:
+        print('[{}] {}'.format(i[0].lower(), i))
+    for i in end_menu:
+        print('[{}] {}'.format(i[0].lower(), i))
+    answer = input('\n> ').lower()
+    while answer not in options:
         prompt()
-    if action == 'go':
+    if answer == 'g':
         player_movement()
-    elif action == 'quit':
+    elif answer == 'q':
         sys.exit()
-    elif action == 'shop':
-        if 'SHOP' in gamemap[myplayer.area][myplayer.position]:
-            shop()
-        else:
-            print('\n<There is no shop here.>')
-            print('--------------------------')
-            prompt()
-    elif action == 'inventory':
+    elif answer == 't':
+        shop()
+    elif answer == 'i':
         myplayer.display_inventory()
-    elif action == 'save':
+    elif answer == 's':
         save_game()
-    elif action == 'stats':
+    elif answer == 'p':
         myplayer.display_stats()
-    elif action == 'xp':
-        myplayer.exp(25, print_location)
-    elif action == 'magic':
+    elif answer == 'm':
         myplayer.display_magic()
 
 # ----------------------------------------------------------- movement ------------------------------------------------------------------
