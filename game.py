@@ -469,8 +469,8 @@ def print_location():                                                           
     print(('-' * 40).center(width))
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
     print('')                                                                           # pulls out location name.
-    if gamemap[myplayer.area][myplayer.position]['SOLVED']:                             # Checks whether player already visited this location
-        print(gamemap[myplayer.area][myplayer.position]['SOLVED_DESCRIPTION'])          # before, for a different message to display.
+    if gamemap[myplayer.area][myplayer.position]['VISITED']:                             # Checks whether player already visited this location
+        print(gamemap[myplayer.area][myplayer.position]['VISITED_DESCRIPTION'])          # before, for a different message to display.
         prompt()
     else:
         print(gamemap[myplayer.area][myplayer.position]['DESCRIPTION'])                 # Prints out first-time-visit message and then 
@@ -491,6 +491,9 @@ def prompt():                                                                   
     if myplayer.job == 'Mage':
         options.append('m')
         end_menu.insert(0, 'Magic')
+    if 'NPC' in gamemap[myplayer.area][myplayer.position]:
+        options.append('c')
+        menu.append('Chat')
     if 'SHOP' in gamemap[myplayer.area][myplayer.position]:
         options.append('t')
         menu.append('Trader')
@@ -515,17 +518,69 @@ def prompt():                                                                   
         myplayer.display_stats()
     elif answer == 'm':
         myplayer.display_magic()
+    elif answer == 'c':
+        chat()
 
 # ----------------------------------------------------------- movement ------------------------------------------------------------------
 def player_movement():
-    print('\n<Go where?> (north, south, east, west, cancel)\n')
-    answers = ['north', 'south', 'east', 'west', 'up', 'down', 'left', 'right', 'shop']     # will change to n,s,e,w probably
-    direction = input('> ').lower()
-    if direction == 'cancel':
-        print_location()
-    while direction not in answers:
+    print('\n<Go where?>\n')
+    options = []
+    directions = {}                                                                             # will change to n,s,e,w probably
+    if gamemap[myplayer.area][myplayer.position]['UP'] == True:
+        options.append('n')
+        a = gamemap[myplayer.area][myplayer.position]['AREA']
+        directions['North'] = '(Travel to {})'.format(a)
+    elif gamemap[myplayer.area][myplayer.position]['UP']:
+        options.append('n')
+        a = gamemap[myplayer.area][myplayer.position]['UP']
+        if gamemap[myplayer.area][a]['VISITED'] == True:
+            directions['North'] = '({})'.format(gamemap[myplayer.area][a]['GRIDNAME'])
+        else:
+            directions['North'] = ''
+
+    if gamemap[myplayer.area][myplayer.position]['LEFT'] == True:
+        options.append('w')
+        a = gamemap[myplayer.area][myplayer.position]['AREA']
+        directions['West'] = '(Travel to {})'.format(a)
+    elif gamemap[myplayer.area][myplayer.position]['LEFT']:
+        options.append('w')
+        a = gamemap[myplayer.area][myplayer.position]['LEFT']
+        if gamemap[myplayer.area][a]['VISITED'] == True:
+            directions['West'] = '({})'.format(gamemap[myplayer.area][a]['GRIDNAME'])
+        else:
+            directions['West'] = ''
+    if gamemap[myplayer.area][myplayer.position]['DOWN'] == True:
+        options.append('s')
+        a = gamemap[myplayer.area][myplayer.position]['AREA']
+        directions['South'] = '(Travel to {})'.format(a)
+    elif gamemap[myplayer.area][myplayer.position]['DOWN']:
+        options.append('s')
+        a = gamemap[myplayer.area][myplayer.position]['DOWN']
+        if gamemap[myplayer.area][a]['VISITED'] == True:
+            directions['South'] = '({})'.format(gamemap[myplayer.area][a]['GRIDNAME'])
+        else:
+            directions['South'] = ''
+    if gamemap[myplayer.area][myplayer.position]['RIGHT'] == True:
+        options.append('e')
+        a = gamemap[myplayer.area][myplayer.position]['AREA']
+        directions['East'] = '(Travel to {})'.format(a)
+    elif gamemap[myplayer.area][myplayer.position]['RIGHT']:
+        options.append('e')
+        a = gamemap[myplayer.area][myplayer.position]['RIGHT']
+        if gamemap[myplayer.area][a]['VISITED'] == True:
+            directions['East'] = '({})'.format(gamemap[myplayer.area][a]['GRIDNAME'])
+        else:
+            directions['East'] = ''
+
+    for key, value in directions.items():
+        print(('[{}] {} {}').format(key[0].lower(), key, value))
+
+    answer = input('\n> ').lower()
+
+    while answer not in options:
         player_movement()
-    if direction in ['north', 'up']:                                                        # Checks for direction, whether player can
+
+    if answer == 'n':                                                        # Checks for direction, whether player can
         if gamemap[myplayer.area][myplayer.position]['UP'] == True:                         # travel from current grid to a chosen direction.
             area = gamemap[myplayer.area][myplayer.position]['AREA']                        # None will tell player that there's nothing
             destination = gamemap[myplayer.area][myplayer.position]['GRID']                 # there. 'True' means that chosen direction
@@ -533,11 +588,8 @@ def player_movement():
         elif gamemap[myplayer.area][myplayer.position]['UP']:                               # String means it's just moving into a different
             destination = gamemap[myplayer.area][myplayer.position]['UP']                   # grid but in the same area.
             movement_handler(destination)
-        else:
-            print("<You cannot go there!>")
-            player_movement()
 
-    elif direction.lower() in ['south', 'down']:
+    elif answer == 's':
         if gamemap[myplayer.area][myplayer.position]['DOWN'] == True:
             area = gamemap[myplayer.area][myplayer.position]['AREA']
             destination = gamemap[myplayer.area][myplayer.position]['GRID']
@@ -545,11 +597,8 @@ def player_movement():
         elif gamemap[myplayer.area][myplayer.position]['DOWN']:
             destination = gamemap[myplayer.area][myplayer.position]['DOWN']
             movement_handler(destination)
-        else:
-            print("<You cannot go there!>")
-            player_movement()
 
-    elif direction.lower() in ['west', 'left']:
+    elif answer == 'w':
         if gamemap[myplayer.area][myplayer.position]['LEFT'] == True:
             area = gamemap[myplayer.area][myplayer.position]['AREA']
             destination = gamemap[myplayer.area][myplayer.position]['GRID']
@@ -557,11 +606,8 @@ def player_movement():
         elif gamemap[myplayer.area][myplayer.position]['LEFT']:
             destination = gamemap[myplayer.area][myplayer.position]['LEFT']
             movement_handler(destination)
-        else:
-            print("<You cannot go there!>")
-            player_movement()
 
-    elif direction.lower() in ['east', 'right']:
+    elif answer == 'e':
         if gamemap[myplayer.area][myplayer.position]['RIGHT'] == True:
             area = gamemap[myplayer.area][myplayer.position]['AREA']
             destination = gamemap[myplayer.area][myplayer.position]['GRID']
@@ -569,19 +615,16 @@ def player_movement():
         elif gamemap[myplayer.area][myplayer.position]['RIGHT']:
             destination = gamemap[myplayer.area][myplayer.position]['RIGHT']
             movement_handler(destination)
-        else:
-            print("<You cannot go there!>")
-            player_movement()
 
 def movement_handler(destination):                                                      # Marks the previsous grid as visisted and moves
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True                          # to a new grid.
+    gamemap[myplayer.area][myplayer.position]['VISITED'] = True                          # to a new grid.
     myplayer.position = destination
     print_location()
 
 def travel_handler(area, destination):
     print('\n<You have traveled to the {}.>'.format(gamemap[area]['NAME']).center(width))
     input('\n<Continue (Press Enter)>'.center(width))
-    gamemap[myplayer.area][myplayer.position]['SOLVED'] = True                          # Marks the previous grid as visited and moves to
+    gamemap[myplayer.area][myplayer.position]['VISITED'] = True                          # Marks the previous grid as visited and moves to
     myplayer.area = area                                                                # a new area and its starting grid.
     myplayer.position = destination
     print_location()
@@ -773,27 +816,58 @@ def shop_sell(npc):
     shop_window(npc)
 
 # ----------------------------------------------------------------- NPC interaction -------------------------------------------------------
+def chat():
+    print('Talk to who?')
+    count = 0
+    options = []
+    npcs = []
+    for i in gamemap[myplayer.area][myplayer.position]['NPC']:
+        count += 1
+        print('[{}] {}'.format(count, i.name))
+        options.append(str(count))
+        npcs.append(i)
+    count += 1
+    print('[{}] (Back)'.format(count))
+    options.append(str(count))
+    answer = input('> ')
+    while answer not in options:
+        chat()
+    if answer == options[-1]:
+        print_location()
+    a = npcs[int(answer) - 1]
+    dialogue(a, print_location)        
+        
+
+
 def dialogue(npc, screen):
     previous_screen = screen                                            # Takes the previous screen attribute to know where to return after
     os.system('cls')
-    print(npc.name)
-    print('-----------------------------------\n')
-    count = 1
-    options = ['1']
+    print('{}: {}'.format(npc.name, npc.dialogue['GREET']))
+    print('-' * len(npc.name))
+    print(' ')
+    count = 0
+    options = []
     for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
-        print('[{}] {}'.format(count, i[0]))                            # associated number.
         count += 1                                                      # 'Count' var is the associated number with player's input
+        print('[{}] {}'.format(count, i[0]))                            
         options.append(str(count))                                      # append the number to options
+    count += 1
     print('[{}] Leave'.format(count))
-
+    options.append(str(count))
     answer = input('> ')
     while answer not in options:
         dialogue(npc, previous_screen)
-    if answer.lower() == options[-1]:                                   # The last option is alway 'back'
-        previous_screen(npc)
+    if answer == options[-1]:                                   # The last option is alway 'back'
+        if previous_screen == shop_prompt:
+            npc.met = True
+            previous_screen(npc)
+        npc.met = True
+        previous_screen()
 
-    print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0] ))    # Looks up for the associated answer in npc's
+    print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0]))     # Looks up for the associated answer in npc's
+    print('-' * (len(myplayer.name) + 1))
     print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))          # dialogues.
+    print('-' * (len(npc.name) + 1))
     input('\n<Back (Press Enter)>')
     dialogue(npc, previous_screen)
 
