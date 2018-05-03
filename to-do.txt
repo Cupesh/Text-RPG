@@ -14,8 +14,11 @@
 - prompt window numbered rather than typed          DONE
 - print_location() shows player's hp,mp,level...    DONE
 - Help menu
-- talking to random npcs
+- talking to random npcs                            DONE
 - quest giving/completing
+- inventory overhaul
+- n,s,e,w functionality                             25%
+- map
 
 
 
@@ -23,4 +26,3 @@
 Future minor improvements:
 - fancy title screen
 - multiple save states (with date, name, hp, mp, possibly location too)
-- shop and dialogue needs 'visited' variable, for different welcoming messages
