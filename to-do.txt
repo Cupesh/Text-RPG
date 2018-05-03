@@ -19,6 +19,7 @@
 - inventory overhaul
 - n,s,e,w functionality                             25%
 - map
+- tiredeness system
 
 
 
