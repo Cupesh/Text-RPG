@@ -16,7 +16,6 @@
 - Help menu
 - talking to random npcs                            DONE
 - quest giving/completing
-- inventory overhaul
 - n,s,e,w functionality                             DONE
 - map
 - tiredeness system
