@@ -13,9 +13,13 @@ shopkeep_dialogue = {
 ]}
 
 npc_01_dia = {
+        'QUEST' : 'Hello stranger. Can you do something for me?',
+        'QUEST_PROMPT' : ['What is it?', 'Help yourself.'],
+        'QUEST_REFUSED' : 'go fuck yourself then',
         'GREET' : 'Yes?',
         'DIALOGUE' : [
-            ['Good day.', 'Good day to you, young man.']
+            ['Good day.', 'Good day to you, young man.'],
+            ['I want a quest', 'Okay, here it is.']
 ]}
 
 npc_02_dia = {
@@ -89,7 +93,7 @@ shopkeep.npc_add_item(healing_potion, 3)
 shopkeep.npc_add_item(mana_potion, 3)
 shopkeep.npc_add_item(strength_potion, 3)
 
-npc_01 = NPC('Mary', 'Old lady', dialogue = npc_01_dia)
+npc_01 = NPC('Mary', 'Old lady', dialogue = npc_01_dia, quest = first_quest)
 npc_02 = NPC('Jim', 'small boy', dialogue = npc_02_dia)
 # ===================== ENEMIES ==============================
 
