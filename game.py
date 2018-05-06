@@ -41,6 +41,7 @@ class Player:
         self.level = 1
         self.xp = 0
         self.next_level = 50
+        self.quests = []
 
 
 # ---------------------------------------------- leveling up --------------------------------------------------------------
@@ -839,30 +840,32 @@ def chat():
         
 
 
-def dialogue(npc, screen):
-    previous_screen = screen                                            # Takes the previous screen attribute to know where to return after
+def dialogue(npc, previous_screen):     # Takes the previous screen attribute to know where to return after
     os.system('cls')
-    print('{}: {}'.format(npc.name, npc.dialogue['GREET']))
-    print('-' * len(npc.name))
-    print(' ')
-    count = 0
-    options = []
-    for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
-        count += 1                                                      # 'Count' var is the associated number with player's input
-        print('[{}] {}'.format(count, i[0]))                            
-        options.append(str(count))                                      # append the number to options
-    count += 1
-    print('[{}] Leave'.format(count))
-    options.append(str(count))
-    answer = input('> ')
-    while answer not in options:
-        dialogue(npc, previous_screen)
-    if answer == options[-1]:                                   # The last option is alway 'back'
-        if previous_screen == shop_prompt:
+    if npc.quest != None:
+        quest_prompt(npc, previous_screen)
+    else:
+        print('{}: {}'.format(npc.name, npc.dialogue['GREET']))
+        print('-' * len(npc.name))
+        print(' ')
+        count = 0
+        options = []
+        for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
+            count += 1                                                      # 'Count' var is the associated number with player's input
+            print('[{}] {}'.format(count, i[0]))                            
+            options.append(str(count))                                      # append the number to options
+        count += 1
+        print('[{}] Leave'.format(count))
+        options.append(str(count))
+        answer = input('> ')
+        while answer not in options:
+            dialogue(npc, previous_screen)
+        if answer == options[-1]:                                   # The last option is alway 'back'
+            if previous_screen == shop_prompt:
+                npc.met = True
+                previous_screen(npc)
             npc.met = True
-            previous_screen(npc)
-        npc.met = True
-        previous_screen()
+            previous_screen()
 
     print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0]))     # Looks up for the associated answer in npc's
     print('-' * (len(myplayer.name) + 1))
@@ -871,8 +874,46 @@ def dialogue(npc, screen):
     input('\n<Back (Press Enter)>')
     dialogue(npc, previous_screen)
 
+def quest_prompt(npc, previous_screen):
+    print('{}: {}'.format(npc.name, npc.dialogue['QUEST']))
+    print('-' * len(npc.name))
+    print(' ')
+    options = ['y', 'n', 'l']
+    print('[y] {}'.format(npc.dialogue['QUEST_PROMPT'][0]))
+    print('[n] {}'.format(npc.dialogue['QUEST_PROMPT'][1]))
+    print('[l] (Leave)')
+    answer = input('\n> ').lower()
+    while answer not in options:
+        quest_prompt(npc, previous_screen)
+    if answer == 'l':
+        previous_screen()
+    elif answer == 'n':
+        print('{}: {}'.format(npc.name, npc.dialogue['QUEST_REFUSED']))
+        print('-' * len(npc.name))
+        input('Farewell (Leave)')
+        previous_screen()
+    elif answer == 'y':
+        quest_giving(npc, previous_screen)
 
+def quest_giving(npc, previous_screen):
+    print('{}: {}'.format(npc.name, npc.quest.description))
+    print('-' * len(npc.name))
+    options = ['1', '2']
+    print('[1] Accept')
+    print('[2] Refuse')
+    answer = input('> ')
+    while answer not in options:
+        quest_giving(npc, previous_screen)
+    if answer == '2':
+        print('{}: {}'.format(npc.name, npc.dialogue['QUEST_REFUSED']))
+        print('-' * len(npc.name))
+        input('Farewell (Leave)')
+        previous_screen()
+    elif answer == '1':
+        quest_accepting(npc, previous_screen)
 
+def quest_accepting(npc, previous_screen):
+    pass
 
 
 title_screen()
