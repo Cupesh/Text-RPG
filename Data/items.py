@@ -1,4 +1,27 @@
 import random
+class Quest:
+    def __init__(self, name, description, steps = {}, messages = None, xp_reward = 0, gold_reward = 0, item_reward = None):
+        self.name = name
+        self.description = description
+        self.steps = steps
+        self.messges = messages
+        self.xp_reward = xp_reward
+        self.gold_reward = gold_reward
+        self.item_reward = item_reward
+
+class FetchQuest(Quest):
+    def __init__ (self, name, description, steps, messages, xp_reward, gold_reward, item_reward, required_item = None):
+        super().__init__(name, description, steps, messages, xp_reward, gold_reward, item_reward)
+        self.required_item = required_item
+
+    for i in myplayer.weapons_inventory:
+        if i[0] == self.required_item:
+            if i[1] > 1:
+                pass
+
+first_quest = Quest('Test Quest', 'Testing the quest system', {'FIRST' : False, 'SECOND' : False}, {'FIRST' : '', 'SECOND' : ''}, 20, 10, None)
+
+
 class Item:
     def __init__(self, name, value):
         self.name = name
