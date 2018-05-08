@@ -13,9 +13,12 @@ shopkeep_dialogue = {
 ]}
 
 npc_01_dia = {
-        'QUEST' : 'Hello stranger. Can you do something for me?',
-        'QUEST_PROMPT' : ['What is it?', 'Help yourself.'],
-        'QUEST_REFUSED' : 'go fuck yourself then',
+        'Q_GREET' : 'Hello stranger. Can you do something for me?',
+        'Q_ONGOING' : 'Have you bring me my item?',
+        'Q_PROMPT' : ['What is it?', 'Help yourself.'],
+        'Q_REFUSED' : 'go fuck yourself then',
+        'Q_ACCEPTED' : 'That\'s great. Thank you!',
+        'Q_COMPLETED' : 'Oh thank you so much, here\'s your reward.',
         'GREET' : 'Yes?',
         'DIALOGUE' : [
             ['Good day.', 'Good day to you, young man.'],
