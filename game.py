@@ -41,6 +41,7 @@ class Player:
         self.level = 1
         self.xp = 0
         self.next_level = 50
+        self.quests = []
 
 
 # ---------------------------------------------- leveling up --------------------------------------------------------------
@@ -104,6 +105,9 @@ class Player:
         print('\n{}Attack: {}'.format((' ' * 45), self.attack))
         print('{}Defence: {}'.format((' ' * 45), self.defence))
         print('{}Speed: {}'.format((' ' * 45), self.speed))
+        if self.quests:
+            for quest in self.quests:
+                print(quest.name)
         input('\n<Continue (Press Enter)>')
         print_location()
 
@@ -704,7 +708,7 @@ def shop_window(npc):
     elif answer == '2':
         shop_sell(npc)
     elif answer == '3':
-        shop_prompt(npc)
+        shop()
 
 def shop_buy(npc):
     print('\n<Buy what?> (type \'back\' to return)')
@@ -816,7 +820,7 @@ def shop_sell(npc):
     shop_window(npc)
 
 # ----------------------------------------------------------------- NPC interaction -------------------------------------------------------
-def chat():
+def chat():                                                         # when selecting 'chat' in prompt() it shows npc available to chat
     print('Talk to who?')
     count = 0
     options = []
@@ -839,40 +843,155 @@ def chat():
         
 
 
-def dialogue(npc, screen):
-    previous_screen = screen                                            # Takes the previous screen attribute to know where to return after
+def dialogue(npc, previous_screen):     # Takes the previous screen attribute to know where to return after
     os.system('cls')
-    print('{}: {}'.format(npc.name, npc.dialogue['GREET']))
+    if npc.quest:                       # if npc has a quest to offer...
+        quest_prompt(npc, previous_screen)
+    else:
+        print('{}: {}'.format(npc.name, npc.dialogue['GREET']))
+        print('-' * len(npc.name))
+        print(' ')
+        count = 0
+        options = []
+        for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
+            count += 1                                                      # 'Count' var is the associated number with player's input
+            print('[{}] {}'.format(count, i[0]))                            
+            options.append(str(count))                                      # append the number to options
+        count += 1
+        print('[{}] Leave'.format(count))
+        options.append(str(count))
+        answer = input('> ')
+        while answer not in options:
+            dialogue(npc, previous_screen)
+        if answer == options[-1]:                                   # The last option is alway 'back'
+            if previous_screen == shop_prompt:
+                npc.met = True
+                previous_screen(npc)
+            npc.met = True
+            previous_screen()
+
+        print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0]))     # Looks up for the associated answer in npc's
+        print('-' * (len(myplayer.name) + 1))
+        print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))          # dialogues.
+        print('-' * (len(npc.name) + 1))
+        input('\n<Back (Press Enter)>')
+        dialogue(npc, previous_screen)
+
+def quest_prompt(npc, previous_screen):
+    if myplayer.quests:                              # check whether player has any ongoing fetchqests
+        for quest in myplayer.quests:
+            if quest == npc.quest:
+                quest_ongoing(npc, previous_screen)
+    print('{}: {}'.format(npc.name, npc.dialogue['Q_GREET']))
     print('-' * len(npc.name))
     print(' ')
-    count = 0
-    options = []
-    for i in npc.dialogue['DIALOGUE']:                                  # Count the amount of possible quesitions and prints them with
-        count += 1                                                      # 'Count' var is the associated number with player's input
-        print('[{}] {}'.format(count, i[0]))                            
-        options.append(str(count))                                      # append the number to options
-    count += 1
-    print('[{}] Leave'.format(count))
-    options.append(str(count))
+    options = ['y', 'n', 'l']
+    print('[y] {}'.format(npc.dialogue['Q_PROMPT'][0]))
+    print('[n] {}'.format(npc.dialogue['Q_PROMPT'][1]))
+    print('[l] (Leave)')
+    answer = input('\n> ').lower()
+    while answer not in options:
+        quest_prompt(npc, previous_screen)
+    if answer == 'l':
+        previous_screen()
+    elif answer == 'n':
+        print('{}: {}'.format(npc.name, npc.dialogue['Q_REFUSED']))
+        print('-' * len(npc.name))
+        input('Farewell (Leave)')
+        previous_screen()
+    elif answer == 'y':
+        quest_describing(npc, previous_screen)
+
+def quest_describing(npc, previous_screen):
+    print('{}: {}'.format(npc.name, npc.quest.description))
+    print('-' * len(npc.name))
+    options = ['1', '2']
+    print('[1] Accept')
+    print('[2] Refuse')
     answer = input('> ')
     while answer not in options:
-        dialogue(npc, previous_screen)
-    if answer == options[-1]:                                   # The last option is alway 'back'
-        if previous_screen == shop_prompt:
-            npc.met = True
-            previous_screen(npc)
-        npc.met = True
+        quest_describing(npc, previous_screen)
+    if answer == '2':
+        print('{}: {}'.format(npc.name, npc.dialogue['Q_REFUSED']))
+        print('-' * len(npc.name))
+        input('Farewell (Leave)')
+        previous_screen()
+    elif answer == '1':
+        quest_accepting(npc, previous_screen)
+
+def quest_accepting(npc, previous_screen):
+    myplayer.quests.append(npc.quest)
+    print('\n{}: {}'.format(npc.name, npc.dialogue['Q_ACCEPTED']))
+    print('-' * len(npc.name))
+    input('Farewell (Leave)')
+    previous_screen()
+
+def quest_ongoing(npc, previous_screen):
+    print('\n{}: {}'.format(npc.name, npc.dialogue['Q_ONGOING']))
+    print('-' * len(npc.name))
+    print('[y] Yes')
+    print('[n] No')
+    options = ['y', 'n']
+    answer = input('> ').lower()
+    while answer not in options:
+        quest_ongoing(npc, previous_screen)
+    if answer == 'y':
+        quest_resolving(npc, previous_screen)
+    elif answer == 'n':
+        print('\n{}: Then I\'ll be waiting.'.format(npc.name))
+        print('-' * len(npc.name))
+        input('Farewell (Leave)')
         previous_screen()
 
-    print('\n{}: {}'.format(myplayer.name, npc.dialogue['DIALOGUE'][int(answer)-1][0]))     # Looks up for the associated answer in npc's
-    print('-' * (len(myplayer.name) + 1))
-    print('\n{}: {}'.format(npc.name, npc.dialogue['DIALOGUE'][int(answer)-1][1]))          # dialogues.
-    print('-' * (len(npc.name) + 1))
-    input('\n<Back (Press Enter)>')
-    dialogue(npc, previous_screen)
+def quest_resolving(npc, previous_screen):
+    if isinstance(npc.quest, FetchQuest):
+        for i in myplayer.weapons_inventory:
+            if i[0] == npc.quest.required_item:
+                if i[1] >= npc.quest.required_amount:
+                    quest_completing(npc, previous_screen)
+        for i in myplayer.potions_inventory:
+            if i[0] == npc.quest.required_item:
+                if i[1] > npc.quest.required_amount:
+                    quest_completing(npc, previous_screen)
+        for i in myplayer.armors_inventory:
+            if i[0] == npc.quest.required_item:
+                if i[1] > npc.quest.required_amount:
+                    quest_completing(npc, previous_screen)
+    print('You don\'t have what I need. Come back when you get {}x {}.'.format(str(npc.quest.required_amount), npc.quest.required_item))
+    input('Farewell (Leave)')
+    previous_screen()
 
-
-
+def quest_completing(npc, previous_screen):
+    if isinstance(npc.quest, FetchQuest):
+        print('\n{}: {}'.format(npc.name, npc.dialogue['Q_COMPLETED']))
+        print('-' * len(npc.name))
+        for i in myplayer.weapons_inventory:
+            if i[0] == npc.quest.required_item:
+                i[1] -= npc.quest.required_amount
+        for i in myplayer.potions_inventory:
+            if i[0] == npc.quest.required_item:
+                i[1] -= npc.quest.required_amount
+        for i in myplayer.armors_inventory:
+            if i[0] == npc.quest.required_item:
+                i[1] -= npc.quest.required_amount
+        print('\n<{}x {} was removed from your inventory!>'.format(str(npc.quest.required_amount), npc.quest.required_item))
+        if npc.quest.gold_reward:
+            print('\n<Received {} gold.>'.format(str(npc.quest.gold_reward)))
+        if npc.quest.item_reward:
+            for i in myplayer.weapons_inventory:
+                if i[0] == npc.quest.item_reward:
+                    i[1] += 1
+            for i in myplayer.potions_inventory:
+                if i[0] == npc.quest.item_reward:
+                    i[1] += 1
+            for i in myplayer.armors_inventory:
+                if i[0] == npc.quest.item_reward:
+                    i[1] += 1
+            print('\n<Received {}.>'.format(npc.quest.item_reward))
+        myplayer.quests.remove(npc.quest)
+        reward = npc.quest.xp_reward
+        npc.quest = None
+        myplayer.exp(reward, previous_screen)
 
 
 title_screen()

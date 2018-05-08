@@ -38,6 +38,7 @@ gamemap = {
         'GRID' : 'a1'
 },
         's1' : {
+        'SHOP' : 's1',
         'GRIDNAME' : 'Shop',
         'NPC' : shopkeep,
         'LEAVE' : 'a1'
