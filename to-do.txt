@@ -15,7 +15,7 @@
 - print_location() shows player's hp,mp,level...    DONE
 - Help menu
 - talking to random npcs                            DONE
-- quest giving/completing
+- quest giving/completing                           WIP 50%
 - n,s,e,w functionality                             DONE
 - map
 - tiredeness system
