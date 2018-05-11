@@ -1,4 +1,4 @@
-- battle system
+- battle system + mob kill count
 - battle screen
 - inventory screen                                  DONE
 - learn textwrap                                    DONE
@@ -15,7 +15,7 @@
 - print_location() shows player's hp,mp,level...    DONE
 - Help menu
 - talking to random npcs                            DONE
-- quest giving/completing                           WIP 50%
+- quest giving/completing                           DONE
 - n,s,e,w functionality                             DONE
 - map
 - tiredeness system
