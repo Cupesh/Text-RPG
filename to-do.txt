@@ -1,4 +1,4 @@
-- battle system
+- battle system + mob kill count
 - battle screen
 - inventory screen                                  DONE
 - learn textwrap                                    DONE
@@ -6,23 +6,27 @@
 - leveling system                                   DONE
 - display player stats window                       DONE
 - invetory equip/deequip                            DONE
-- cool text displaying
 - fix the repetition (.lower())                     DONE
-- quest book
+- quest book                                        DONE
 - organise the code                                 DONE
 - commenting the code                               DONE
 - prompt window numbered rather than typed          DONE
 - print_location() shows player's hp,mp,level...    DONE
 - Help menu
 - talking to random npcs                            DONE
-- quest giving/completing                           WIP 50%
+- quest giving/completing                           DONE
 - n,s,e,w functionality                             DONE
 - map
-- tiredeness system
+- tiredeness system                                 WIP
+- better dialogue system for questing
+- shorten the code 
+  (declaring variables for repeated code)
 
 
 
 
 Future minor improvements:
 - fancy title screen
-- multiple save states (with date, name, hp, mp, possibly location too)
+- multiple save states 
+  (with date, name, hp, mp, possibly location too)
+- cool text displaying

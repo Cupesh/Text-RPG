@@ -26,6 +26,12 @@ npc_01_dia = {
 ]}
 
 npc_02_dia = {
+        'Q_GREET' : 'Hello buddy, got a minute?',
+        'Q_ONGOING' : 'Did you kill them all?',
+        'Q_PROMPT' : ['What do you need young man?', 'Don\'t have time for this.'],
+        'Q_REFUSED' : 'Fuck off then.',
+        'Q_ACCEPTED' : 'Awesome!',
+        'Q_COMPLETED' : 'You\'re a baddas. Here\'s your reward.',
         'GREET' : 'Hello.',
         'DIALOGUE' : [
             ['How is it going?', 'good good'],
@@ -97,7 +103,7 @@ shopkeep.npc_add_item(mana_potion, 3)
 shopkeep.npc_add_item(strength_potion, 3)
 
 npc_01 = NPC('Mary', 'Old lady', dialogue = npc_01_dia, quest = first_quest)
-npc_02 = NPC('Jim', 'small boy', dialogue = npc_02_dia)
+npc_02 = NPC('Jim', 'small boy', dialogue = npc_02_dia, quest = second_quest)
 # ===================== ENEMIES ==============================
 
 class GiantRat:

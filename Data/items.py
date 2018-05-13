@@ -1,3 +1,4 @@
+# to do = TalkQuest
 import random
 
 class Item:
@@ -127,21 +128,30 @@ all_spells_list = [frostbite, thunder, flames, blizzard, storm, healing, major_h
 
 
 class Quest:
-    def __init__(self, name, description, steps = {}, messages = None, xp_reward = 0, gold_reward = None, item_reward = None):
+    def __init__(self, name, description, owner, steps, message, xp_reward = 0, gold_reward = None, item_reward = None):
         self.name = name
         self.description = description
+        self.owner = owner
         self.steps = steps
-        self.messges = messages
+        self.message = message
         self.xp_reward = xp_reward
         self.gold_reward = gold_reward
         self.item_reward = item_reward
 
 class FetchQuest(Quest):
-    def __init__ (self, name, description, steps, messages, xp_reward, gold_reward, item_reward, required_item = None, required_amount = None):
-        super().__init__(name, description, steps, messages, xp_reward, gold_reward, item_reward)
+    def __init__ (self, name, description, owner, steps, message, xp_reward, gold_reward, item_reward, required_item = None, required_amount = None):
+        super().__init__(name, description, owner, steps, message, xp_reward, gold_reward, item_reward)
         self.required_item = required_item
         self.required_amount = required_amount
 
+class KillQuest(Quest):
+    def __init__(self, name, description, owner, steps, message, xp_reward, gold_reward, item_reward, mob = None, kill_amount = None):
+        super().__init__(name, description, owner, steps, message, xp_reward, gold_reward, item_reward)
+        self.mob = mob
+        self.kill_amount = kill_amount
 
 
-first_quest = FetchQuest('Test Quest', 'Testing the quest system', {'FIRST' : False, 'SECOND' : False}, {'FIRST' : '', 'SECOND' : ''}, 20, 10, healing_potion, short_sword, 1)
+
+first_quest = FetchQuest('Test Quest', 'Testing the quest system', 'Old Lady', {'FIRST' : True, 'SECOND' : False}, {'FIRST' : 'Bring 1x Short Sword', 'SECOND' : ''}, 20, 10, healing_potion, short_sword, 1)
+second_quest = KillQuest('Test Kill Quest', 'Kill 3 Giant Rats!', 'Young man', {'FIRST' : True, 'SECOND' : False}, {'FIRST' : 'Kill 3x Giant Rat', 'SECOND' : ''},
+                        25, 20, None, 'Giant Rat', 3)
