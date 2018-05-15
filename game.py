@@ -45,6 +45,7 @@ class Player:
         self.next_level = 50
         self.quests = []
         self.kill_count = [['Giant Rat', 0],['Goblin', 0],['Skeleton', 0], ['Zombie', 0], ['Bandit greenhorn', 0]]
+        self.day = 1
 
 
 # ---------------------------------------------- leveling up --------------------------------------------------------------
@@ -104,6 +105,8 @@ class Player:
     def display_stats(self):                                                    # Displays player's stats
         os.system('cls')
         print(self.name.center(width))
+        print('Day: {}'.format(str(self.day)).center(width))
+        print('')
         print('{} Level: {}, XP: {}, Next Level: {}'.format(self.job, str(self.level), str(self.xp), str(self.next_level - self.xp)).center(width))
         print('')
         print('{}HP: {}/{}'.format((' ' * 45), self.max_hp, self.hp))
@@ -416,7 +419,7 @@ def title_screen():
     print('')
     print('[1] Start Game'.center(width) + '\n')
     print('[2] Load Game'.center(width) + '\n')
-    print('[3] Help     '.center(width) + '\n')
+    print('[3] Instructions'.center(width) + '\n')
     print('[4] Quit Game'.center(width) + '\n')
     option = input('\n> ')
     if option.lower() in ['1', 'start']:
@@ -424,7 +427,7 @@ def title_screen():
     elif option.lower() in ['2', 'load']:
         load_game()
     elif option.lower() in ['3', 'help']:
-        help_menu()
+        instructions()
     elif option.lower() in ['4', 'quit']:
         sys.exit()
     else:
@@ -448,10 +451,10 @@ def load_game():
         input('<Return (Press Enter)>')
         title_screen()
 
-def help_menu():
-    pass
-
-
+def instructions():
+    print(textwrap.fill('Welcome to my small text-based RPG made with Python, passion and patience. It is a learning project, that I started working on in April 2018. I was a beginner programmer, when I started working on this game and the code clearly reflects that. I would appreaciate any advice you can have to improve my coding skills. Please visit github.com/Cupesh/Text-RPG to review my code. How to play the game? Most of the time the player can choose what to do, by typing the corresponding letter to the action prompted on the screen, shown in brackets, like this: \"[p] Play\". Where typing \"p\" and pressing Enter will select the Play option. Only in a few scenarios, like buying or selling items, is player prompted to type out the whole name. In that case, type the whole name of the item. Everything player enters in the console is case insensitive, so capitalizing doesn\'t matter. Game uses only very basic RPG elements. Leveling up, experience points and a few stats. Attack, Defence, Speed. Attack and Defence is self-explanatory. Can be increased by buying weapons and armor. Speed is an attribute, that determines, who will attack first in the battle. Starting at value 10 and decreasing with equipping weapons and armor. Player also have a fatigue value, that decrease as player travels or fight or uses magic. It can be replenished eating food and sleeping in the inn or wilderness. Enjoy the game!', width = 99))
+    input('Back (Press Enter)')
+    title_screen()
 # ---------------------------------------------------- starting the game, character creation ------------------------------------------
 def character_creation():
     os.system('cls')                                                                    # clears the screen
@@ -511,10 +514,10 @@ def print_location():
     print(('-' * 40).center(width))
     print('HP: {}/{} MP: {}/{}'.format(myplayer.max_hp, myplayer.hp, myplayer.max_mp, myplayer.mp).center(width))
     print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, myplayer.next_level).center(width))
-    print('Energy: {}/{}'.format(myplayer.max_energy, myplayer.energy).center(width))
+    print(' ' * 35 + 'Energy: {}/{}'.format(myplayer.max_energy, myplayer.energy) + (' ' * 6) + 'Day: {}'.format(str(myplayer.day)))
     print(('-' * 40).center(width))
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
-    print('')                                                                           # pulls out location name.
+    print('\n')                                                                           # pulls out location name.
     if gamemap[myplayer.area][myplayer.position]['VISITED']:                             # Checks whether player already visited this location
         print(gamemap[myplayer.area][myplayer.position]['VISITED_DESCRIPTION'])          # before, for a different message to display.
         print('')
@@ -535,22 +538,25 @@ def print_location():
 # -------------------------------------------------------- main prompt window ----------------------------------------------------------
 def prompt():
     print('')                                                                           # Main prompt window.
-    menu = ['Go']
-    end_menu = ['Journal', 'Player', 'Inventory', 'Save', 'Quit']
+    menu = ['gGo']
+    end_menu = ['jJournal', 'pPlayer', 'iInventory', 'sSave', 'qQuit']
     options = ['g', 'q', 'i', 's', 'p', 'j']
     if myplayer.job == 'Mage':
         options.append('m')
-        end_menu.insert(0, 'Magic')
+        end_menu.insert(0, 'mMagic')
     if 'NPC' in gamemap[myplayer.area][myplayer.position]:
         options.append('c')
-        menu.append('Chat')
+        menu.append('cTalk')
     if 'SHOP' in gamemap[myplayer.area][myplayer.position]:
         options.append('t')
-        menu.append('Trader')
+        menu.append('tShop')
+    if 'TAVERN' in gamemap[myplayer.area][myplayer.position]:
+        options.append('b')
+        menu.append('bTavern')
     for i in menu:
-        print('[{}] {}'.format(i[0].lower(), i))
+        print('[{}] {}'.format(i[0].lower(), i[1:]))
     for i in end_menu:
-        print('[{}] {}'.format(i[0].lower(), i))
+        print('[{}] {}'.format(i[0].lower(), i[1:]))
     answer = input('\n> ').lower()
     while answer not in options:
         prompt()
@@ -569,9 +575,11 @@ def prompt():
     elif answer == 'm':
         myplayer.display_magic()
     elif answer == 'c':
-        chat()
+        chat(print_location)
     elif answer == 'j':
         myplayer.journal()
+    elif answer == 'b':
+        tavern()
 
 # ----------------------------------------------------------- movement ------------------------------------------------------------------
 def player_movement():
@@ -694,7 +702,7 @@ def cast_spell():
 def shop():
     os.system('cls')
     myplayer.position = gamemap[myplayer.area][myplayer.position]['SHOP']               # allocates player's new position
-    npc = gamemap[myplayer.area][myplayer.position]['NPC']                              # Searches for the npc
+    npc = gamemap[myplayer.area][myplayer.position]['OWNER']                              # Searches for the npc
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
     print('\n' + npc.name.center(width))
     print(('-' * (len(npc.name) + 2)).center(width))
@@ -710,7 +718,7 @@ def shop_prompt(npc):
     while answer not in options:
         shop_prompt(npc)        
     if answer == '1':
-        shop_window(npc)
+        shop_window(npc, shop_prompt)
     elif answer == '2':
         dialogue(npc, shop_prompt)
     elif answer == '3':
@@ -720,7 +728,7 @@ def shop_prompt(npc):
         input('<Continue (Press Enter)>'.center(width))
         print_location()
 
-def shop_window(npc):
+def shop_window(npc, previous_screen):
     npc_name = npc.name.center(width) + '\n' + ('-' * (len(npc.name) + 2)).center(width)
     os.system('cls')
     print(npc.name.upper().center(width))                                               # Npc's name in the center
@@ -756,15 +764,15 @@ def shop_window(npc):
     print('\n[1] Buy\n[2] Sell\n[3] Back')
     answer = input('\n> ')
     while answer not in answers:
-        shop_window(npc)
+        shop_window(npc, previous_screen)
     if answer == '1':
-        shop_buy(npc)
+        shop_buy(npc, previous_screen)
     elif answer == '2':
-        shop_sell(npc)
+        shop_sell(npc, previous_screen)
     elif answer == '3':
         shop()
 
-def shop_buy(npc):
+def shop_buy(npc, previous_screen):
     npc_name = npc.name.center(width) + '\n' + ('-' * (len(npc.name) + 2)).center(width)
     print('\n<Buy what?> (type \'back\' to return)')
     back = ['back']
@@ -776,9 +784,9 @@ def shop_buy(npc):
     while answer not in options:
         print('\n' + npc_name)
         print('I don\'t have that.'.center(width))
-        shop_buy(npc)
+        shop_buy(npc, previous_screen)
     if answer == 'back':
-        shop_window(npc)
+        shop_window(npc, previous_screen)
     for i in npc.weapons_inventory:
         if answer == i[0].name.lower():
             if myplayer.gold >= i[0].value:                                         # Checks if player has enough gold for the transaction
@@ -791,7 +799,7 @@ def shop_buy(npc):
             else:
                 print('\n' + npc_name)
                 print("You don\'t have enough gold!".center(width))
-                shop_buy(npc)
+                shop_buy(npc, previous_screen)
     for i in npc.potions_inventory:
         if answer == i[0].name.lower():
             if myplayer.gold >= i[0].value:
@@ -804,7 +812,7 @@ def shop_buy(npc):
             else:
                 print('\n' + npc_name)
                 print("You don\'t have enough gold!".center(width))
-                shop_buy(npc)
+                shop_buy(npc, previous_screen)
     for i in npc.armors_inventory:
         if answer == i[0].name.lower():
             if myplayer.gold >= i[0].value:
@@ -817,11 +825,11 @@ def shop_buy(npc):
             else:
                 print('\n' + npc_name)
                 print("You don\'t have enough gold!".center(width))
-                shop_buy(npc)
+                shop_buy(npc, previous_screen)
     input('\n<Continue (Press Enter)>'.center(width))        
-    shop_window(npc)
+    previous_screen(npc)
 
-def shop_sell(npc):
+def shop_sell(npc, previous_screen):
     os.system('cls')
     options = ['back']
     npc_name = npc.name.center(width) + '\n' + ('-' * (len(npc.name) + 2)).center(width)
@@ -846,9 +854,9 @@ def shop_sell(npc):
         print('\n' + npc_name)
         print('You don\'t have that.'.center(width))
         input('\n<Continue (Press Enter)>'.center(width))         
-        shop_sell(npc)
+        shop_sell(npc, previous_screen)
     if answer == 'back':
-        shop_window(npc)
+        shop_window(npc, previous_screen)
     for i in myplayer.weapons_inventory:
         if answer == i[0].name.lower():
             selling_price = i[0].value // 3
@@ -879,10 +887,74 @@ def shop_sell(npc):
                 if i[0].name.lower() == answer:
                     i[1] += 1
     input('\n<Continue (Press Enter)>'.center(width))
-    shop_window(npc)
+    shop_window(npc, previous_screen)
 
+
+#------------------------------------------------------------------- Tavern -----------------------------------------------------------------
+def tavern():
+    os.system('cls')
+    myplayer.position = gamemap[myplayer.area][myplayer.position]['TAVERN']
+    npc = gamemap[myplayer.area][myplayer.position]['OWNER']
+    print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))
+    print('\n' + npc.name.center(width))
+    print(('-' * (len(npc.name) + 2)).center(width))
+    print(npc.dialogue['WELCOME'].center(width))
+    npc.met = True
+    tavern_prompt(npc)
+
+def tavern_prompt(npc):
+    npc_name = npc.name.center(width) + '\n' + ('-' * (len(npc.name) + 2)).center(width)
+    print('[1] Bed\n[2] Order food\n[3] Talk to ' + npc.name + '\n[4] Talk to people\n[5] Leave')
+    options = ['1', '2', '3', '4', '5']
+    answer = input('> ')
+    while answer not in options:
+        tavern_prompt(npc)        
+    if answer == '1':
+        tavern_bed(npc)
+    elif answer == '2':
+        shop_buy(npc, tavern_prompt)
+    elif answer == '3':
+        dialogue(npc, tavern_prompt)
+    elif answer == '4':
+        chat(tavern_prompt)
+    elif answer == '5':
+        print(npc_name)
+        print(npc.dialogue['LEAVE'].center(width) + '\n')                       #
+        myplayer.position = gamemap[myplayer.area][myplayer.position]['LEAVE']          # Finds the leaving grid from the shop
+        input('<Continue (Press Enter)>'.center(width))
+        print_location()
+
+def tavern_bed(npc):
+    print(npc.dialogue['BED'])
+    options = ['1', '2']
+    print('[1] Accept\n[2] Refuse')
+    answer = input('> ')
+    while answer not in options:
+        tavern_bed(npc)
+    if answer == '1':
+        if myplayer.gold < npc.bed_price:
+            print('You don\'t have enough gold!')
+            input('OK')
+            tavern_prompt(npc)
+        myplayer.gold -= npc.bed_price
+        print('I\'ll take you to your room.')
+        input('OK')
+        sleep(tavern)
+    elif answer == '2':
+        tavern_prompt(npc)
+
+def sleep(previous_screen):
+    os.system('cls')
+    myplayer.energy = myplayer.max_energy
+    myplayer.hp = myplayer.max_hp
+    myplayer.mp = myplayer.max_mp
+    myplayer.day += 1
+    print('<You slept well.>')
+    print('<HP and MP replenished!>\n')
+    input('OK')
+    previous_screen()
 # ----------------------------------------------------------------- NPC interaction -------------------------------------------------------
-def chat():                                                         # when selecting 'chat' in prompt() it shows npc available to chat
+def chat(previous_screen):                                                         # when selecting 'chat' in prompt() it shows npc available to chat
     print('\n<Talk to who?>\n')
     count = 0
     options = []
@@ -897,11 +969,13 @@ def chat():                                                         # when selec
     options.append(str(count))
     answer = input('> ')
     while answer not in options:
-        chat()
+        chat(previous_screen)
     if answer == options[-1]:
-        print_location()
-    a = npcs[int(answer) - 1]
-    dialogue(a, print_location)        
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
+        previous_screen()
+    selected_npc = npcs[int(answer) - 1]
+    dialogue(selected_npc, previous_screen)        
 
 
 def dialogue(npc, previous_screen):     # Takes the previous screen attribute to know where to return after
@@ -928,6 +1002,8 @@ def dialogue(npc, previous_screen):     # Takes the previous screen attribute to
             dialogue(npc, previous_screen)
         if answer == options[-1]:                                                   # The last option is alway 'back'
             if previous_screen == shop_prompt:
+                previous_screen(npc)
+            elif previous_screen == tavern_prompt:
                 previous_screen(npc)
             previous_screen()
 
@@ -956,11 +1032,15 @@ def quest_prompt(npc, previous_screen):
     while answer not in options:
         quest_prompt(npc, previous_screen)
     if answer == '3':
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()
     elif answer == '2':
         print(npc_name)
         print(npc.dialogue['Q_REFUSED'].center(width)+ '\n')
         input('Farewell (Leave)'.center(width))
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()
     elif answer == '1':
         quest_describing(npc, previous_screen)
@@ -980,6 +1060,8 @@ def quest_describing(npc, previous_screen):
         print(npc_name)
         print(npc.dialogue['Q_REFUSED'].center(width) + '\n')
         input('Farewell (Leave)'.center(width))
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()
     elif answer == '1':
         myplayer.quests.append(npc.quest)
