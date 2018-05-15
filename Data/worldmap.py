@@ -20,6 +20,7 @@ gamemap = {
         'VISITED_DESCRIPTION': "This is the east part of the city square. One of the buildings is blacksmith\'s workshop.",
         'VISITED' : False,
         'NPC' : [npc_01, npc_02],
+        'TAVERN' : 's2',
         'UP' : None,
         'DOWN' : None,
         'LEFT' : 'a1',
@@ -40,8 +41,15 @@ gamemap = {
         's1' : {
         'SHOP' : 's1',
         'GRIDNAME' : 'Shop',
-        'NPC' : shopkeep,
+        'OWNER' : shopkeep,
         'LEAVE' : 'a1'
+},
+        's2' : {
+        'TAVERN' : 's2',
+        'GRIDNAME' : 'Tavern',
+        'OWNER' : tavernkeep,
+        'LEAVE' : 'a2',
+        'NPC' : [npc_01, npc_02]
 }
 },
     'Cave' : {'NAME' : 'Cave',
