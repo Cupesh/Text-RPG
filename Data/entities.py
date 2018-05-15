@@ -12,6 +12,17 @@ shopkeep_dialogue = {
                 ['Did you hear any gossips lately?', 'Ur mom.']
 ]}
 
+tavernkeep_dialogue = {
+        'WELCOME' : 'Welcome to this small tavern. You can order food or you can sleep here. For a small fee of course.',
+        'LEAVE' : 'Farewell!',
+        'GREET' : 'What would you like to know?',
+        'BED': 'You can sleep here for 5 gold pieces.',
+        'DIALOGUE' : [
+                ['How many people are here?', 'Two, lol.'],
+                ['What do you sell?', 'Healing potions.'],
+                ['Is this just a testing dialogue?', 'I don\'t know. Is it?']
+]}
+
 npc_01_dia = {
         'Q_GREET' : 'Hello stranger. Can you do something for me?',
         'Q_ONGOING' : 'Have you bring me my item?',
@@ -61,7 +72,7 @@ class NPC:
 
 
 class Merchant(NPC):
-    def __init__(self, xname, name, dialogue = None, quest = None, met = False):
+    def __init__(self, xname, name, dialogue = None, quest = None, met = False, bed_price = 0):
         super().__init__(xname, name, dialogue, quest, met)
         self.weapons_inventory = [[dagger, 0], [short_sword, 0], [long_sword, 0], [two_handed_sword, 0], [axe, 0], [battleaxe, 0],
         [spear, 0]]
@@ -69,6 +80,7 @@ class Merchant(NPC):
         [strength_potion, 0]]
         self.armors_inventory = [[clothes, 0], [leather_armor, 0], [studded_leather_armor, 0], [chain_mail_armor, 0], [plate_armor, 0],
         [mage_robe, 0], [master_robe, 0]]
+        self.bed_price = bed_price
 
     def npc_add_item(self, item, amount):
         for i in self.weapons_inventory:
@@ -102,6 +114,8 @@ shopkeep.npc_add_item(healing_potion, 3)
 shopkeep.npc_add_item(mana_potion, 3)
 shopkeep.npc_add_item(strength_potion, 3)
 
+tavernkeep = Merchant('Karl', 'Tavernkeeper', dialogue = tavernkeep_dialogue, bed_price = 5)
+tavernkeep.npc_add_item(healing_potion, 3)
 npc_01 = NPC('Mary', 'Old lady', dialogue = npc_01_dia, quest = first_quest)
 npc_02 = NPC('Jim', 'small boy', dialogue = npc_02_dia, quest = second_quest)
 # ===================== ENEMIES ==============================
