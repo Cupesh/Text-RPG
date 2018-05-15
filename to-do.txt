@@ -16,11 +16,10 @@
 - talking to random npcs                            DONE
 - quest giving/completing                           DONE
 - n,s,e,w functionality                             DONE
-- map
 - tiredeness system                                 WIP
 - better dialogue system for questing
-- shorten the code 
-  (declaring variables for repeated code)
+- shorten the code                  
+  (declaring variables for repeated code)           DONE
 
 
 
@@ -30,3 +29,4 @@ Future minor improvements:
 - multiple save states 
   (with date, name, hp, mp, possibly location too)
 - cool text displaying
+- map 
