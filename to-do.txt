@@ -21,7 +21,7 @@
 - shorten the code                                  DONE
   (declaring variables for repeated code)           DONE
 - tavern and ability to sleep                       DONE
-- add consumables
+- add consumables                                   DONE
 
 
 
