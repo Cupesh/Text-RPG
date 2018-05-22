@@ -22,7 +22,7 @@
   (declaring variables for repeated code)           DONE
 - tavern and ability to sleep                       DONE
 - add consumables                                   DONE
-
+- text message to tiredness level
 
 
 Future minor improvements:
