@@ -52,6 +52,28 @@ class Armor(Item):
         self.speed = speed
         self.mana_bonus = mana_bonus
 
+class Consumable(Item):
+    def __init__(self, name, value, energy_up, hp_up = None, mp_up = None):
+        super().__init__(name, value)
+        self.hp_up = hp_up
+        self.mp_up = mp_up
+        self.energy_up = energy_up
+
+    def use_consumable(self, player):
+        if self.hp_up:
+            player.hp += self.hp_up
+            if player.hp > player.max_hp:
+                player.hp = player.max_hp
+            print('\n<Restored {} HP!>\n'.format(self.hp_up))
+        if self.mp_up:
+            player.mp += self.mp_up
+            if player.mp > player.max_mp:
+                player.mp = player.max_mp
+            print('\n<Restored {} MP!>\n'.format(self.mp_up))
+        player.energy += self.energy_up
+        if player.energy > player.max_energy:
+            player.energy = player.max_energy
+        print('\n<Restored {} energy!>\n'.format(self.energy_up))
 
 # weapons
 dagger = Weapon('Dagger', value = 4, damage = 3, speed = -1)
@@ -79,6 +101,20 @@ rejuvenation_potion = Potion('Rejuvenation Potion', value = 50, hp_up = True, mp
 speed_potion = Potion('Speed Potion', value = 15, speed_up = True)
 ironskin_potion = Potion('Ironskin Potion', value = 35, defence_up = True)
 strength_potion = Potion('Strenght Potion', value = 35, attack_up = True)
+
+# consumables
+bread = Consumable('Bread', value = 2, energy_up = 5)
+water = Consumable('Water', value = 1, energy_up = 3)
+raw_meat = Consumable('Raw meat', value = 5, energy_up = 5, hp_up=-3)
+cooked_meat = Consumable('Cooked meat', value = 7, energy_up = 10, hp_up=2)
+potato = Consumable('Potato', value = 1, energy_up = 3)
+cooked_potato = Consumable('Cooked potato', value = 2, energy_up = 5, hp_up=1)
+carrot = Consumable('Carrot', value = 1, energy_up = 3)
+rotten_meat = Consumable('Rotten meat', value = 1, energy_up = 2, hp_up=-5)
+wine = Consumable('Wine', value = 6, energy_up = 2, mp_up=5)
+beer = Consumable('Beer', value = 2, energy_up = 1, mp_up=2)
+apple = Consumable('Apple', value = 1, energy_up = 5)
+full_meal = Consumable('Full meal', value = 10, energy_up = 15, hp_up = 3)
 
 #================================================================================================================================
 #================================================================================================================================

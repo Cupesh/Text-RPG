@@ -31,6 +31,7 @@ class Player:
         self.spells = []
         self.area = 'City'
         self.position = 'a1'
+        self.previous_position = None
         self.gold = 100
         self.weapons_inventory = [[dagger, 1], [short_sword, 0], [long_sword, 0], [two_handed_sword, 0], [axe, 0], [battleaxe, 0],
         [spear, 0]]
@@ -38,6 +39,8 @@ class Player:
         [strength_potion, 0]]
         self.armors_inventory = [[clothes, 0], [leather_armor, 0], [studded_leather_armor, 0], [chain_mail_armor, 0], [plate_armor, 0],
         [mage_robe, 0], [master_robe, 0]]
+        self.consumables_inventory = [[bread, 1], [water, 1], [raw_meat, 0], [cooked_meat, 0], [potato, 0], [cooked_potato, 0], [carrot, 0],
+        [rotten_meat, 0], [wine, 0], [beer, 0], [apple, 0], [full_meal, 0]]
         self.equipped_weapon = None
         self.equipped_armor = None
         self.level = 1
@@ -58,6 +61,8 @@ class Player:
             print("\n<You leveled up to level {}!>".format(str(self.level)))
             self.level_up(previous_screen)                                      # If xp reached next level threshold, move to level_up() 
         input('\n<Continue (Press Enter)>')                                     # otherwise return to the previous screen argument passed 
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()                                                       # to this function.
     
     def level_up(self, previous_screen):
@@ -80,6 +85,8 @@ class Player:
         if self.level % 3 == 0:                                                 # Every third level player can add +1 to a stat
             self.stat_increase(previous_screen)
         input('\n<Continue (Press Enter)>')
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()                                                       # Returns to the previous screen before player leveled up
 
     def stat_increase(self, previous_screen):                                   # Subject to change? Every 3rd level choose an attribute
@@ -99,6 +106,8 @@ class Player:
             self.speed += 1
             print('\n<Your speed went up by 1!>')
         input('\n<Continue (Press Enter)>')
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()                                                       # Return to the previous screen before player leveled up
 
 # ----------------------------------------------------------- stats --------------------------------------------------------------------
@@ -134,17 +143,24 @@ class Player:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
                 print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
-        print('{:-^99}'.format(' Potions '))
+        print('\n' + '{:-^99}'.format(' Potions '))
         for i in self.potions_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
                 print('{}{}x{}                      Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].value)))
-        print('{:-^99}'.format(' Armors '))
+        print('\n' + '{:-^99}'.format(' Armors '))
         for i in self.armors_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
                 print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
+        print('\n' + '{:-^99}'.format(' Consumables ')) 
+        for i in self.consumables_inventory:
+            if i[1] > 0:
+                c = ' ' * (30 - len(i[0].name))
+                print('{}{}x{}     Energy: {} HP: {} MP:{} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].energy_up), str(i[0].hp_up) or '-', str(i[0].mp_up) or '-', str(i[0].value)))
+
         self.inventory_prompt()                                                     # ^ Displays inventory and prompts the player
+
 
     def inventory_prompt(self):
         options = ['1', '2', '3', '4', '5']
@@ -170,11 +186,14 @@ class Player:
 
     def inventory_use(self):
         for i in self.potions_inventory:                                            # Subject to change? So far only potions can be used 
-            if i[1] > 1:                                                            # from the game window print_location().
-                print('{}x {}'.format(i[0].name, str(i[1])))
+            if i[1] > 0:                                                            # from the game window print_location().
+                print('{} x {}'.format(i[0].name, str(i[1])))
+        for i in self.consumables_inventory:
+            if i[1] > 0:
+                print('{} x {}'.format(i[0].name, str(i[1])))
         print('')
-        print('<Use what?> (type \'back\' to return)')
-        options = [i[0].name.lower() for i in self.potions_inventory] + ['back']
+        print('\n<Use what?> (type \'back\' to return)\n')
+        options = [i[0].name.lower() for i in self.potions_inventory if i[1] > 0] + ['back'] + [i[0].name.lower() for i in self.consumables_inventory if i[1] > 0]
         answer = input('> ').lower()                                                # This while-loop is used many times throughout the code
         while answer not in options:                                                # limiting player's accepted inputs by checking with
             self.inventory_use()                                                    # 'options' list that contains all acceptable inputs.
@@ -191,12 +210,24 @@ class Player:
                     input('\n<Continue (Press Enter)>')
                     self.inventory_use()
 
+        for i in self.consumables_inventory:
+            if answer == i[0].name.lower():
+                if i[1] > 0:
+                    Consumable.use_consumable(i[0], self)
+                    i[1] -= 1
+                    self.inventory_use()
+                else:
+                    ('<You don\'t have that!>')
+                    input('\n<Continue (Press Enter)>')
+                    self.inventory_use()
+
     def inventory_toss(self):
         print('\n<Toss what?> (type \'back\' to return)')
         a = [i[0].name.lower() for i in self.weapons_inventory if i[1] > 0]         # My stupid way of making options list, probably don't 
         b = [i[0].name.lower() for i in self.potions_inventory if i[1] > 0]         # know how to handle lists or I just chose a stupid
         c = [i[0].name.lower() for i in self.armors_inventory if i[1] > 0]          # inventory handling.
-        options = a + b + c + ['back']
+        d = [i[0].name.lower() for i in self.consumables_inventory if i[1] > 0]
+        options = a + b + c + d + ['back']
         answer = input('> ').lower()
         while answer not in options:
             self.inventory_toss()
@@ -219,7 +250,13 @@ class Player:
                 i[1] -= 1
                 print('\nYou tossed {} away!'.format(i[0].name))
                 input('\n<Continue (Press Enter)>')
-                self.display_inventory()                
+                self.display_inventory()
+        for i in self.consumables_inventory:
+            if answer == i[0].name.lower():
+                i[1] -= 1
+                print('\nYou tossed {} away!'.format(i[0].name))
+                input('\n<Continue (Press Enter)>')
+                self.display_inventory()
         print('\nYou don\'t have that!')
         self.inventory_toss()        
 
@@ -455,6 +492,8 @@ def instructions():
     print(textwrap.fill('Welcome to my small text-based RPG made with Python, passion and patience. It is a learning project, that I started working on in April 2018. I was a beginner programmer, when I started working on this game and the code clearly reflects that. I would appreaciate any advice you can have to improve my coding skills. Please visit github.com/Cupesh/Text-RPG to review my code. How to play the game? Most of the time the player can choose what to do, by typing the corresponding letter to the action prompted on the screen, shown in brackets, like this: \"[p] Play\". Where typing \"p\" and pressing Enter will select the Play option. Only in a few scenarios, like buying or selling items, is player prompted to type out the whole name. In that case, type the whole name of the item. Everything player enters in the console is case insensitive, so capitalizing doesn\'t matter. Game uses only very basic RPG elements. Leveling up, experience points and a few stats. Attack, Defence, Speed. Attack and Defence is self-explanatory. Can be increased by buying weapons and armor. Speed is an attribute, that determines, who will attack first in the battle. Starting at value 10 and decreasing with equipping weapons and armor. Player also have a fatigue value, that decrease as player travels or fight or uses magic. It can be replenished eating food and sleeping in the inn or wilderness. Enjoy the game!', width = 99))
     input('Back (Press Enter)')
     title_screen()
+
+
 # ---------------------------------------------------- starting the game, character creation ------------------------------------------
 def character_creation():
     os.system('cls')                                                                    # clears the screen
@@ -508,16 +547,19 @@ def game_introduction():                                                        
 
 # ------------------------------------------------------ main game window  ------------------------------------------------------------
 def print_location():
-    if myplayer.energy <= 0:
-        death_screen()                                                                   # This is a main game window.
+    if myplayer.energy < 1:
+        death_screen()
+    if myplayer.hp < 1:
+        death_screen()
     os.system('cls')
     print(('-' * 40).center(width))
     print('HP: {}/{} MP: {}/{}'.format(myplayer.max_hp, myplayer.hp, myplayer.max_mp, myplayer.mp).center(width))
     print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, myplayer.next_level).center(width))
     print(' ' * 35 + 'Energy: {}/{}'.format(myplayer.max_energy, myplayer.energy) + (' ' * 6) + 'Day: {}'.format(str(myplayer.day)))
     print(('-' * 40).center(width))
+    print(' ')
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
-    print('\n')                                                                           # pulls out location name.
+    print('')
     if gamemap[myplayer.area][myplayer.position]['VISITED']:                             # Checks whether player already visited this location
         print(gamemap[myplayer.area][myplayer.position]['VISITED_DESCRIPTION'])          # before, for a different message to display.
         print('')
@@ -528,6 +570,7 @@ def print_location():
         print('')
         print('=' * 99)
         if 'ENEMY' in gamemap[myplayer.area][myplayer.position]:                        # checks whether location has an enemy present.
+            input('\n<Continue>')
             battle_start()
         else:
             prompt()
@@ -678,6 +721,7 @@ def player_movement():
 
 def movement_handler(destination):                                                      # Marks the previsous grid as visisted and moves
     gamemap[myplayer.area][myplayer.position]['VISITED'] = True                          # to a new grid.
+    myplayer.previous_position = myplayer.position
     myplayer.position = destination
     myplayer.energy -= 1
     print_location()
@@ -691,12 +735,166 @@ def travel_handler(area, destination):
     myplayer.energy -= 10
     print_location()
 
+
 # ------------------------------------------------------------------- Battling -------------------------------------------------------------
 def battle_start():
+    enemy = gamemap[myplayer.area][myplayer.position]['ENEMY']
+    if myplayer.speed > enemy.speed:
+        battle_player_turn(enemy)
+    else:
+        battle_enemy_turn(enemy)
+
+def battle_player_turn(enemy):
+    os.system('cls')
+    print('{:=^99}'.format('Player\'s turn'))
+    print('')
+    print(myplayer.name.center(width))
+    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
+    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
+    print('-' * 99)
+    print(enemy.name.center(width).center(width))
+    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
+    print('-' * 99)
+    print('\n')
+
+    attack = myplayer.attack + random.randint(1, 4)
+    defence = enemy.defence + random.randint(1, 4)
+
+    options = ['1', '2', '3', '4']
+    print('[1] Attack\n[2] Magic\n[3] Items\n[4] Run\n')
+    answer = input('> ')
+    while answer not in options:
+        battle_player_turn(enemy)
+    if answer == '4':
+        myplayer.position = myplayer.previous_position
+        damage = random.randint(1, 4)
+        myplayer.hp -= damage
+        print('\n<{} striked you as you were running away and dealt {} damage!>'.format(enemy.name, str(damage)))
+        input('\n(Continue)')
+        print_location()
+    elif answer == '3':
+        battle_item_use(enemy)
+    elif answer == '2':
+        battle_cast_spell_prompt(enemy)
+    elif answer == '1':
+        damage = attack - defence
+        if damage < 0:
+            damage = 0
+        enemy.hp -= damage
+        print('\n<You attacked {} and dealt {} damage!>'.format(enemy.name, str(damage)))
+        if enemy.hp < 1:
+            print('<{} died!>'.format(enemy.name))
+            input('\n(Continue)')
+            battle_win(enemy)
+        input('\n(Continue)')
+        battle_enemy_turn(enemy)
+
+def battle_enemy_turn(enemy):
+    os.system('cls')
+    print('{:=^99}'.format('Enemy\'s turn'))
+    print('')
+    print(myplayer.name.center(width))
+    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
+    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
+    print('-' * 99)
+    print(enemy.name.center(width).center(width))
+    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
+    print('-' * 99)
+    print('\n')
+
+    attack = enemy.attack + random.randint(1, 4)
+    defence = myplayer.defence + random.randint(1, 4)
+
+    input('\n(Continue)')
+
+    damage = attack - defence
+    if damage < 0:
+        damage = 0
+
+    print('\n<{} attacked and dealt {} damage to you!>'.format(enemy.name, str(damage)).center(width))
+    myplayer.hp -= damage
+    if myplayer.hp <= 0:
+        death_screen()
+    else:
+        input('\n(Continue)')
+        battle_player_turn(enemy)
+
+def battle_item_use(enemy):
+    for i in myplayer.potions_inventory:
+        if i[1] > 0:
+            print('{} x {}'.format(i[0].name, str(i[1])))
+    for i in myplayer.consumables_inventory:
+        if i[1] > 0:
+            print('{} x {}'.format(i[0].name, str(i[1])))
+    print('')
+    print('\n<Use what?> (type \'back\' to return)\n')
+    options = [i[0].name.lower() for i in myplayer.potions_inventory if i[1] > 0] + ['back'] + [i[0].name.lower() for i in myplayer.consumables_inventory if i[1] > 0]
+    answer = input('> ').lower()
+    while answer not in options:
+        battle_item_use(enemy)
+    if answer == 'back':
+        battle_player_turn(enemy)
+    for i in myplayer.potions_inventory:
+        if answer == i[0].name.lower():
+            Potion.use_potion(i[0], myplayer)
+            i[1] -= 1
+            input('\n(Continue)')
+            battle_enemy_turn(enemy)
+    for i in myplayer.consumables_inventory:
+        if answer == i[0].name.lower():
+            Consumable.use_consumable(i[0], myplayer)
+            i[1] -= 1
+            input('\n(Continue)')
+            battle_enemy_turn(enemy)
+
+
+
+def battle_cast_spell_prompt(enemy):
+    print(myplayer.name.center(width))
+    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
+    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
+    print('-' * 99)
+    print(enemy.name.center(width).center(width))
+    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
+    print('-' * 99)
+    print('\n')
+
+    print('{:-^99}'.format(' Spells '))
+    for i in myplayer.spells:
+        a = ' ' * (15 - len(i.name))
+        b = ' ' * (60 - len(i.description))
+        print('{}{}{}{}Cost: {} MP'.format(i.name, a, i.description, b, i.mp_cost))
+    print('\n' * 2)
+    print('\n[1] Attack Magic\n[2] Healing magic\n[3] Back')
+    options = ['1', '2', '3']
+    answer = input('> ')
+    while answer not in options:
+        myplayer.display_magic()
+    if answer == '3':
+        battle_player_turn(enemy)
+    elif answer == '2':
+        battle_cast_healing_spell(enemy)
+    elif answer == '1':
+        battle_cast_attacking_spell(enemy)
+
+def battle_cast_healing_spell(enemy):
     pass
 
-def cast_spell():
+def battle_cast_attacking_spell(enemy):
     pass
+
+def battle_win(enemy):
+    print('\n<You defeated {}!'.format(enemy.name))
+    print('\n<You gained {} gold!>'.format(str(enemy.gold)))
+    myplayer.gold += enemy.gold
+    input('\n(Continue)')
+    gamemap[myplayer.area][myplayer.position]['VISITED'] = True
+    gamemap[myplayer.area][myplayer.position]['ENEMY'] = None
+    myplayer.energy -= 7
+    for i in myplayer.kill_count:
+        if i[0] == enemy.name:
+            i[1] += 1
+    myplayer.exp(enemy.xp, print_location)
 
 # -------------------------------------------------------------------- shop ---------------------------------------------------------------
 def shop():
@@ -756,6 +954,13 @@ def shop_window(npc, previous_screen):
             c = ' ' * (30 - len(i[0].name))
             print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value))) 
     print('')
+    print('\n{:_^99}'.format(' Consumables '))
+    print('')
+    for i in npc.consumables_inventory:
+        if i[1] > 0:
+            c = ' ' * (30 - len(i[0].name))
+            print('{}{}x{}     Energy: {} HP: {} MP:{} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].energy_up), str(i[0].hp_up) or '-', str(i[0].mp_up) or '-', str(i[0].value)))
+    print('')
     print('-' * 100)
     print('\nYour gold: {}'.format(myplayer.gold))
     answers = ['1', '2', '3']
@@ -779,6 +984,7 @@ def shop_buy(npc, previous_screen):
     a = [i[0].name.lower() for i in npc.weapons_inventory if i[1] > 0]
     b = [i[0].name.lower() for i in npc.potions_inventory if i[1] > 0]
     c = [i[0].name.lower() for i in npc.armors_inventory if i[1] > 0]
+    d = [i[0].name.lower() for i in npc.consumables_inventory if i[1] > 0]
     options = a + b + c + back
     answer = input('> ').lower()
     while answer not in options:
@@ -826,6 +1032,19 @@ def shop_buy(npc, previous_screen):
                 print('\n' + npc_name)
                 print("You don\'t have enough gold!".center(width))
                 shop_buy(npc, previous_screen)
+    for i in npc.consumables_inventory:
+        if answer == i[0].name.lower():
+            if myplayer.gold >= i[0].value:
+                print('\n<You bought {}!>'.format(i[0].name))
+                myplayer.gold -= i[0].value
+                i[1] -= 1
+                for i in myplayer.consumables_inventory:
+                    if i[0].name.lower() == answer:
+                        i[1] += 1
+            else:
+                print('\n' + npc_name)
+                print("You don\'t have enough gold!".center(width))
+                shop_buy(npc, previous_screen)
     input('\n<Continue (Press Enter)>'.center(width))        
     previous_screen(npc)
 
@@ -838,17 +1057,27 @@ def shop_sell(npc, previous_screen):
         if i[1] > 0:
             options.append(i[0].name.lower())
             selling_price = str(i[0].value // 3)                                        # Selling value is a third of original value
+            if selling_price <= 0:
+                selling_price = 1
             print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
     for i in myplayer.potions_inventory:
         if i[1] > 0:
             options.append(i[0].name.lower())
+            selling_price = str(i[0].value // 3)   
             print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
     for i in myplayer.armors_inventory:
         if i[1] > 0:
             options.append(i[0].name.lower())
+            selling_price = str(i[0].value // 3)   
+            print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
+    for i in myplayer.consumables_inventory:
+        if i[1] > 0:
+            options.append(i[0].name.lower())
+            selling_price = str(i[0].value // 3)   
             print('{}: x{}    Price: {}'.format(i[0].name, str(i[1]), selling_price))
     
-    print('\nWhat do you want to sell? <(type \'back\' to go back')
+    
+    print('\n<What do you want to sell?> (type \'back\' to go back)')
     answer = input('\n> ').lower()
     while answer not in options:
         print('\n' + npc_name)
@@ -886,6 +1115,16 @@ def shop_sell(npc, previous_screen):
             for i in npc.armors_inventory:
                 if i[0].name.lower() == answer:
                     i[1] += 1
+
+    for i in myplayer.consumables_inventory:
+        if answer == i[0].name.lower():
+            selling_price = i[0].value // 3
+            print('\n<You sold {}!>'.format(i[0].name))
+            myplayer.gold += selling_price
+            i[1] -= 1
+            for i in npc.consumables_inventory:
+                if i[0].name.lower() == answer:
+                    i[1] += 1
     input('\n<Continue (Press Enter)>'.center(width))
     shop_window(npc, previous_screen)
 
@@ -912,7 +1151,7 @@ def tavern_prompt(npc):
     if answer == '1':
         tavern_bed(npc)
     elif answer == '2':
-        shop_buy(npc, tavern_prompt)
+        shop_window(npc, tavern_prompt)
     elif answer == '3':
         dialogue(npc, tavern_prompt)
     elif answer == '4':
@@ -1068,6 +1307,8 @@ def quest_describing(npc, previous_screen):
         print(npc_name)
         print(npc.dialogue['Q_ACCEPTED'].center(width) + '\n')
         input('Farewell (Leave)'.center(width))
+        if previous_screen == tavern_prompt:
+            previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
         previous_screen()
 
 
@@ -1088,7 +1329,9 @@ def quest_ongoing(npc, previous_screen):
         print(npc_name)
         print('Then I\'ll be waiting.'.center(width) + '\n')
         input('Farewell (Leave)'.center(width))
-        previous_screen()
+    if previous_screen == tavern_prompt:
+        previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
+    previous_screen()
 
 def quest_resolving(npc, previous_screen):
     npc_name = npc.name.center(width) + '\n' + ('-' * (len(npc.name) + 2)).center(width)
@@ -1118,6 +1361,8 @@ def quest_resolving(npc, previous_screen):
         print('You didn\'t complete the task. Come back when you kill {}x {}.'.format(str(npc.quest.kill_amount), npc.quest.mob).center(width))
     print('')
     input('Farewell (Leave)'.center(width))
+    if previous_screen == tavern_prompt:
+        previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
     previous_screen()
 
 def quest_completing(npc, previous_screen):
@@ -1158,7 +1403,7 @@ def quest_completing(npc, previous_screen):
     myplayer.quests.remove(npc.quest)
     reward = npc.quest.xp_reward
     npc.quest = None
-    input('Farewell (Leave)')
+    input('\nFarewell (Leave)')
     myplayer.exp(reward, previous_screen)
     
 

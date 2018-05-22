@@ -97,4 +97,4 @@ gamemap = {
         'RIGHT' : None,
 },
 }
-}       
+}
