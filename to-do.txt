@@ -24,7 +24,7 @@
 - add consumables                                   DONE
 - text message to tiredness level
 - multiple enemies battle
-
+- using magic during battle (spells numbered rather than typed)
 
 Future minor improvements:
 - fancy title screen
