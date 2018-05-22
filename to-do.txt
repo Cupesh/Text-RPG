@@ -1,5 +1,5 @@
-- battle system + mob kill count
-- battle screen
+- battle system + mob kill count                    DONE
+- battle screen                                     DONE
 - inventory screen                                  DONE
 - learn textwrap                                    DONE
 - magic                                             DONE
@@ -23,6 +23,7 @@
 - tavern and ability to sleep                       DONE
 - add consumables                                   DONE
 - text message to tiredness level
+- multiple enemies battle
 
 
 Future minor improvements:
