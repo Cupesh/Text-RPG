@@ -80,6 +80,8 @@ class Merchant(NPC):
         [strength_potion, 0]]
         self.armors_inventory = [[clothes, 0], [leather_armor, 0], [studded_leather_armor, 0], [chain_mail_armor, 0], [plate_armor, 0],
         [mage_robe, 0], [master_robe, 0]]
+        self.consumables_inventory = [[bread, 0], [water, 0], [raw_meat, 0], [cooked_meat, 0], [potato, 0], [cooked_potato, 0], [carrot, 0],
+        [rotten_meat, 0], [wine, 0], [beer, 0], [apple, 0], [full_meal, 0]]
         self.bed_price = bed_price
 
     def npc_add_item(self, item, amount):
@@ -90,6 +92,9 @@ class Merchant(NPC):
             if i[0] == item:
                 i[1] += amount
         for i in self.armors_inventory:
+            if i[0] == item:
+                i[1] += amount
+        for i in self.consumables_inventory:
             if i[0] == item:
                 i[1] += amount
 
@@ -103,6 +108,9 @@ class Merchant(NPC):
         for i in self.armors_inventory:
             if i[0] == item:
                 i[1] -= 1
+        for i in self.consumables_inventory:
+            if i[0] == item:
+                i[1] -= 1
 
 
 shopkeep = Merchant('Steve', 'Shopkeep', dialogue = shopkeep_dialogue)
@@ -113,9 +121,11 @@ shopkeep.npc_add_item(studded_leather_armor, 1)
 shopkeep.npc_add_item(healing_potion, 3)
 shopkeep.npc_add_item(mana_potion, 3)
 shopkeep.npc_add_item(strength_potion, 3)
+shopkeep.npc_add_item(full_meal, 3)
 
 tavernkeep = Merchant('Karl', 'Tavernkeeper', dialogue = tavernkeep_dialogue, bed_price = 5)
 tavernkeep.npc_add_item(healing_potion, 3)
+tavernkeep.npc_add_item(bread, 2)
 npc_01 = NPC('Mary', 'Old lady', dialogue = npc_01_dia, quest = first_quest)
 npc_02 = NPC('Jim', 'small boy', dialogue = npc_02_dia, quest = second_quest)
 # ===================== ENEMIES ==============================
