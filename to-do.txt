@@ -25,6 +25,9 @@
 - text message to tiredness level
 - multiple enemies battle
 - using magic during battle (spells numbered rather than typed)
+- search function with energy usage
+
+
 
 Future minor improvements:
 - fancy title screen
