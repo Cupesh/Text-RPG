@@ -142,22 +142,22 @@ class Player:
         for i in self.weapons_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
-                print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
+                print('[{}] {}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].shortcut, i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
         print('\n' + '{:-^99}'.format(' Potions '))
         for i in self.potions_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
-                print('{}{}x{}                      Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].value)))
+                print('[{}] {}{}x{}                      Price: {}'.format(i[0].shortcut, i[0].name, c, str(i[1]), str(i[0].value)))
         print('\n' + '{:-^99}'.format(' Armors '))
         for i in self.armors_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
-                print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
+                print('[{}] {}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].shortcut, i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
         print('\n' + '{:-^99}'.format(' Consumables ')) 
         for i in self.consumables_inventory:
             if i[1] > 0:
                 c = ' ' * (30 - len(i[0].name))
-                print('{}{}x{}     Energy: {} HP: {} MP:{} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].energy_up), str(i[0].hp_up) or '-', str(i[0].mp_up) or '-', str(i[0].value)))
+                print('[{}] {}{}x{}     Energy: {} HP: {} MP:{} Price: {}'.format(i[0].shortcut, i[0].name, c, str(i[1]), str(i[0].energy_up), str(i[0].hp_up) or '-', str(i[0].mp_up) or '-', str(i[0].value)))
 
         self.inventory_prompt()                                                     # ^ Displays inventory and prompts the player
 
@@ -185,100 +185,82 @@ class Player:
             print_location()
 
     def inventory_use(self):
-        for i in self.potions_inventory:                                            # Subject to change? So far only potions can be used 
-            if i[1] > 0:                                                            # from the game window print_location().
-                print('{} x {}'.format(i[0].name, str(i[1])))
-        for i in self.consumables_inventory:
-            if i[1] > 0:
-                print('{} x {}'.format(i[0].name, str(i[1])))
-        print('')
         print('\n<Use what?> (type \'back\' to return)\n')
-        options = [i[0].name.lower() for i in self.potions_inventory if i[1] > 0] + ['back'] + [i[0].name.lower() for i in self.consumables_inventory if i[1] > 0]
-        answer = input('> ').lower()                                                # This while-loop is used many times throughout the code
-        while answer not in options:                                                # limiting player's accepted inputs by checking with
-            self.inventory_use()                                                    # 'options' list that contains all acceptable inputs.
+        options = [item[0].shortcut for item in self.potions_inventory if item[1] > 0] + ['back'] + [item[0].shortcut for item in self.consumables_inventory if item[1] > 0]
+        answer = input('> ').lower()
+        while answer not in options:
+            self.inventory_use()
         if answer == 'back':
             self.display_inventory()
-        for i in self.potions_inventory:                                            # My way of handling inventory functions. For loops
-            if answer == i[0].name.lower():                                         # used in the same manner throughout the whole code.
-                if i[1] > 0:                                                        # At first converts any player's input into all lower
-                    Potion.use_potion(i[0], self)                                   # case string and then loops through the particular
-                    i[1] -= 1                                                       # inventory type, converting each item's name into a
-                    self.inventory_use()                                            # lowercase string and then looks for a match.
-                else:
-                    ('<You don\'t have that!>')
-                    input('\n<Continue (Press Enter)>')
-                    self.inventory_use()
+        for item in self.potions_inventory:
+            if answer == item[0].shortcut:
+                Potion.use_potion(item[0], self)
+                item[1] -= 1
+        for item in self.consumables_inventory:
+            if answer == item[0].shortcut:
+                Consumable.use_consumable(item[0], self)
+                item[1] -= 1
 
-        for i in self.consumables_inventory:
-            if answer == i[0].name.lower():
-                if i[1] > 0:
-                    Consumable.use_consumable(i[0], self)
-                    i[1] -= 1
-                    self.inventory_use()
-                else:
-                    ('<You don\'t have that!>')
-                    input('\n<Continue (Press Enter)>')
-                    self.inventory_use()
+        input('\n<Continue (Press Enter)>')
+        self.inventory_use()
 
     def inventory_toss(self):
         print('\n<Toss what?> (type \'back\' to return)')
-        a = [i[0].name.lower() for i in self.weapons_inventory if i[1] > 0]         # My stupid way of making options list, probably don't 
-        b = [i[0].name.lower() for i in self.potions_inventory if i[1] > 0]         # know how to handle lists or I just chose a stupid
-        c = [i[0].name.lower() for i in self.armors_inventory if i[1] > 0]          # inventory handling.
-        d = [i[0].name.lower() for i in self.consumables_inventory if i[1] > 0]
+        a = [item[0].shortcut for item in self.weapons_inventory if item[1] > 0]         # My stupid way of making options list, probably don't 
+        b = [item[0].shortcut for item in self.potions_inventory if item[1] > 0]         # know how to handle lists or I just chose a stupid
+        c = [item[0].shortcut for item in self.armors_inventory if item[1] > 0]          # inventory handling.
+        d = [item[0].shortcut for item in self.consumables_inventory if item[1] > 0]
         options = a + b + c + d + ['back']
+        
         answer = input('> ').lower()
         while answer not in options:
             self.inventory_toss()
         if answer == 'back':
             self.display_inventory()
-        for i in self.weapons_inventory:
-            if answer == i[0].name.lower():
-                i[1] -= 1
-                print('\nYou tossed {} away!'.format(i[0].name))
-                input('\n<Continue (Press Enter)>')
-                self.display_inventory()
-        for i in self.potions_inventory:
-            if answer == i[0].name.lower():
-                i[1] -= 1
-                print('\nYou tossed {} away!'.format(i[0].name))
-                input('\n<Continue (Press Enter)>')
-                self.display_inventory()                 
-        for i in self.armors_inventory:
-            if answer == i[0].name.lower():
-                i[1] -= 1
-                print('\nYou tossed {} away!'.format(i[0].name))
-                input('\n<Continue (Press Enter)>')
-                self.display_inventory()
-        for i in self.consumables_inventory:
-            if answer == i[0].name.lower():
-                i[1] -= 1
-                print('\nYou tossed {} away!'.format(i[0].name))
-                input('\n<Continue (Press Enter)>')
-                self.display_inventory()
-        print('\nYou don\'t have that!')
-        self.inventory_toss()        
+
+        for item in self.weapons_inventory:
+            if answer == item[0].shortcut:
+                item[1] -= 1
+                print('\nYou tossed {} away!'.format(item[0].name))
+
+        for item in self.potions_inventory:
+            if answer == item[0].shortcut:
+                item[1] -= 1
+                print('\nYou tossed {} away!'.format(item[0].name))
+              
+        for item in self.armors_inventory:
+            if answer == item[0].shortcut:
+                item[1] -= 1
+                print('\nYou tossed {} away!'.format(item[0].name))
+
+        for item in self.consumables_inventory:
+            if answer == item[0].shortcut:
+                item[1] -= 1
+                print('\nYou tossed {} away!'.format(item[0].name))
+
+        input('\n<Continue (Press Enter)>')
+        self.display_inventory()
+   
 
     def inventory_equip(self):
         os.system('cls')
-        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))                 # Displays equipped weapon and armor. self.name attribute 
-        print('Equipped Armor: {}'.format(self.equipped_armor))                     # not called because of __str__ method in Item class
+        print('\nEquipped Weapon: {}'.format(self.equipped_weapon))
+        print('Equipped Armor: {}'.format(self.equipped_armor))
         print('')
-        print('{:-^99}'.format(' Weapons '))                                        # Prints 'Weapons' surrounded with 99 '-'. Nice format
-        for i in self.weapons_inventory:                                            # function.
-            if i[1] > 0:
-                c = ' ' * (30 - len(i[0].name))                                     # var 'c' creates equal allignement
-                print('{}{}x{}     DMG: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].damage), str(i[0].speed), str(i[0].value)))
+        print('{:-^99}'.format(' Weapons '))
+        for item in self.weapons_inventory:
+            if item[1] > 0:
+                c = ' ' * (30 - len(item[0].name))
+                print('[{}] {}{}x{}     DMG: {} SPEED: {} Price: {}'.format(item[0].shortcut, item[0].name, c, str(item[1]), str(item[0].damage), str(item[0].speed), str(item[0].value)))
         print('{:-^99}'.format(' Armors '))
-        for i in self.armors_inventory:
-            if i[1] > 0:
-                c = ' ' * (30 - len(i[0].name))
-                print('{}{}x{}     DEF: {} SPEED: {} Price: {}'.format(i[0].name, c, str(i[1]), str(i[0].defence_bonus), str(i[0].speed), str(i[0].value)))
+        for item in self.armors_inventory:
+            if item[1] > 0:
+                c = ' ' * (30 - len(item[0].name))
+                print('[{}] {}{}x{}     DEF: {} SPEED: {} Price: {}'.format(item[0].shortcut, item[0].name, c, str(item[1]), str(item[0].defence_bonus), str(item[0].speed), str(item[0].value)))
         print('\n<Equip what?> (type \'back\' to return)')
         back = ['back']
-        a = [i[0].name.lower() for i in self.weapons_inventory if i[1] > 0]
-        b = [i[0].name.lower() for i in self.armors_inventory if i[1] > 0]
+        a = [item[0].shortcut for item in self.weapons_inventory if item[1] > 0]
+        b = [item[0].shortcut for item in self.armors_inventory if item[1] > 0]
         options = a + b + back
         answer = input('> ').lower()
         while answer not in options:
@@ -295,7 +277,7 @@ class Player:
                         i[1] += 1                                                   # from hand.
                 self.equipped_weapon = None
             for i in self.weapons_inventory:
-                if answer == i[0].name.lower():                                     # Equips new weapon, adds its effects to the player
+                if answer == i[0].shortcut:                                     # Equips new weapon, adds its effects to the player
                     self.equipped_weapon = i[0]                                     # and removes from the inventory.
                     i[1] -= 1
                     self.attack += i[0].damage
@@ -316,7 +298,7 @@ class Player:
                         i[1] += 1
                 self.equipped_armor = None
             for i in self.armors_inventory:
-                if answer == i[0].name.lower():
+                if answer == i[0].shortcut:
                     self.equipped_armor = i[0]
                     i[1] -= 1
                     self.defence += i[0].defence_bonus
@@ -386,21 +368,25 @@ class Player:
         elif answer == '1':
             self.use_spell()
     
-    def use_spell(self):                                                                # So far only healing spells can be used.
-        options = ['minor healing', 'healing', 'major healing', 'back']                 # Not sure what about other spells...
-        print('\n<Use what? (type \'back\' to return)>')                                # Has to be typed. Probably will import
-        answer = input('> ').lower()                                                    # numbered prompt.
+    def use_spell(self):
+        options = [spell.shortcut for spell in self.spells if isinstance(spell, HealingSpell)] + ['back']
+        print('\n<Use what? (type \'back\' to return)>\n')
+        for spell in self.spells:
+            if isinstance(spell, HealingSpell):
+                print('[{}] {}'.format(spell.shortcut, spell.name))
+
+        answer = input('\n> ').lower()
         while answer not in options:
-            print('\n<Can\'t use that. Try a healing spell.>')
             self.use_spell()
         if answer == 'back':
             self.display_magic()
-        for i in self.spells:
-            if answer == i.name.lower():
-                if self.mp < i.mp_cost:                                                 # Checking if player has enough mana.
+        for spell in self.spells:
+            if answer == spell.shortcut:
+                if self.mp < spell.mp_cost:
                     print('\n<You don\'t have enough mana!>')
-                else:
-                    i.heal_spell_cast(myplayer)
+                    self.use_spell()
+                spell.use_spell(myplayer)
+
         input('\n<Continue (Press Enter)>')
         self.display_magic()
 
@@ -746,6 +732,12 @@ def battle_start():
 
 def battle_player_turn(enemy):
     os.system('cls')
+    print(('#' * 14).center(width))
+    print('#####    #####'.center(width))
+    print('##  BATTLE  ##'.center(width))
+    print('#####    #####'.center(width))
+    print(('#' * 14).center(width))
+    print('#' * 99 + '\n')
     print('{:=^99}'.format('Player\'s turn'))
     print('')
     print(myplayer.name.center(width))
@@ -820,68 +812,67 @@ def battle_enemy_turn(enemy):
         battle_player_turn(enemy)
 
 def battle_item_use(enemy):
-    for i in myplayer.potions_inventory:
-        if i[1] > 0:
-            print('{} x {}'.format(i[0].name, str(i[1])))
-    for i in myplayer.consumables_inventory:
-        if i[1] > 0:
-            print('{} x {}'.format(i[0].name, str(i[1])))
+    for item in myplayer.potions_inventory:
+        if item[1] > 0:
+            print('{} x {}'.format(item[0].name, str(item[1])))
+    for item in myplayer.consumables_inventory:
+        if item[1] > 0:
+            print('{} x {}'.format(item[0].name, str(item[1])))
     print('')
     print('\n<Use what?> (type \'back\' to return)\n')
-    options = [i[0].name.lower() for i in myplayer.potions_inventory if i[1] > 0] + ['back'] + [i[0].name.lower() for i in myplayer.consumables_inventory if i[1] > 0]
+    options = [item[0].name.lower() for item in myplayer.potions_inventory if item[1] > 0] + ['back'] + [item[0].name.lower() for item in myplayer.consumables_inventory if item[1] > 0]
     answer = input('> ').lower()
     while answer not in options:
         battle_item_use(enemy)
     if answer == 'back':
         battle_player_turn(enemy)
-    for i in myplayer.potions_inventory:
-        if answer == i[0].name.lower():
-            Potion.use_potion(i[0], myplayer)
-            i[1] -= 1
+    for item in myplayer.potions_inventory:
+        if answer == item[0].name.lower():
+            Potion.use_potion(item[0], myplayer)
+            item[1] -= 1
             input('\n(Continue)')
             battle_enemy_turn(enemy)
-    for i in myplayer.consumables_inventory:
-        if answer == i[0].name.lower():
-            Consumable.use_consumable(i[0], myplayer)
-            i[1] -= 1
+    for item in myplayer.consumables_inventory:
+        if answer == item[0].name.lower():
+            Consumable.use_consumable(item[0], myplayer)
+            item[1] -= 1
             input('\n(Continue)')
             battle_enemy_turn(enemy)
 
 
 
 def battle_cast_spell_prompt(enemy):
-    print(myplayer.name.center(width))
-    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
-    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
-    print('-' * 99)
-    print(enemy.name.center(width).center(width))
-    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
-    print('-' * 99)
-    print('\n')
-
-    print('{:-^99}'.format(' Spells '))
-    for i in myplayer.spells:
-        a = ' ' * (15 - len(i.name))
-        b = ' ' * (60 - len(i.description))
-        print('{}{}{}{}Cost: {} MP'.format(i.name, a, i.description, b, i.mp_cost))
     print('\n' * 2)
-    print('\n[1] Attack Magic\n[2] Healing magic\n[3] Back')
-    options = ['1', '2', '3']
-    answer = input('> ')
+    print('{:-^99}'.format(' Spells '))
+    for spell in myplayer.spells:
+        a = ' ' * (15 - (len(spell.name) + len(spell.shortcut)))
+        b = ' ' * (30 - len(spell.description))
+        print('[{}] {} {} {} {} Cost: {}'.format(spell.shortcut, spell.name, a, spell.description, b, spell.mp_cost))
+    print('\n' * 2)
+
+    options = [spell.shortcut for spell in myplayer.spells] + ['back']
+    answer = input('> ').lower()
     while answer not in options:
-        myplayer.display_magic()
-    if answer == '3':
+        battle_cast_spell_prompt(enemy)
+    if answer == 'back':
         battle_player_turn(enemy)
-    elif answer == '2':
-        battle_cast_healing_spell(enemy)
-    elif answer == '1':
-        battle_cast_attacking_spell(enemy)
+    for spell in myplayer.spells:
+        if answer == spell.shortcut:
+            if myplayer.mp < spell.mp_cost:
+                print('\n<You don\'t have enough mana!>')
+                battle_cast_spell_prompt(enemy)
+            elif isinstance(spell, HealingSpell):
+                spell.use_spell(myplayer)
+            elif isinstance(spell, DamageSpell):
+                spell.use_spell(myplayer, enemy)
+    if enemy.hp < 1:
+        print('<{} died!>'.format(enemy.name))
+        input('\n(Continue)')
+        battle_win(enemy)
+    input('\n<Continue>')
+    battle_enemy_turn(enemy)
 
-def battle_cast_healing_spell(enemy):
-    pass
 
-def battle_cast_attacking_spell(enemy):
-    pass
 
 def battle_win(enemy):
     print('\n<You defeated {}!'.format(enemy.name))
@@ -985,7 +976,7 @@ def shop_buy(npc, previous_screen):
     b = [i[0].name.lower() for i in npc.potions_inventory if i[1] > 0]
     c = [i[0].name.lower() for i in npc.armors_inventory if i[1] > 0]
     d = [i[0].name.lower() for i in npc.consumables_inventory if i[1] > 0]
-    options = a + b + c + back
+    options = a + b + c + d + back
     answer = input('> ').lower()
     while answer not in options:
         print('\n' + npc_name)
