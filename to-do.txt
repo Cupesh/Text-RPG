@@ -26,6 +26,8 @@
 - multiple enemies battle
 - using magic during battle (spells numbered rather than typed)
 - search function with energy usage
+- equipped weapons and armor have to show stats
+- items need shortcut for fast selection (like spells)
 
 
 
