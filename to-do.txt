@@ -27,6 +27,7 @@
 - using magic during battle                         DONE
 - spells used by typing shortcut of the spell       DONE
 - search function with energy usage
+(search if fail, next attempt higher chance)
 - equipped weapons and armor have to show stats     DONE
 - items need shortcuts (like spells)                90% - need to rewrite rest of the code, last was inventory_toss()
 - ASCII pictures for spells, inventory, battle, title
