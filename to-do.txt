@@ -27,13 +27,12 @@
 - using magic during battle                         DONE
 - spells used by typing shortcut of the spell       DONE
 - search function with energy usage
-- equipped weapons and armor have to show stats
-- items need shortcut for fast selection (like spells)
-- ASCII pictures for spells, inventory, battle ...
+- equipped weapons and armor have to show stats     DONE
+- items need shortcuts (like spells)                90% - need to rewrite rest of the code, last was inventory_toss()
+- ASCII pictures for spells, inventory, battle, title
 
 
 Future minor improvements:
-- fancy title screen
 - multiple save states 
   (with date, name, hp, mp, possibly location too)
 - cool text displaying
