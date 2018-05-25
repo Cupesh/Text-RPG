@@ -29,7 +29,7 @@
 - search function with energy usage
 (search if fail, next attempt higher chance)
 - equipped weapons and armor have to show stats     DONE
-- items need shortcuts (like spells)                90% - need to rewrite rest of the code, last was inventory_toss()
+- items need shortcuts (like spells)                DONE
 - ASCII pictures for spells, inventory, battle, title
 
 
