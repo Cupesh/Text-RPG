@@ -26,12 +26,14 @@
 - multiple enemies battle
 - using magic during battle                         DONE
 - spells used by typing shortcut of the spell       DONE
-- search function with energy usage
-(search if fail, next attempt higher chance)
+- search function with energy usage                 DONE
+- traps                                             DONE
+- locks
 - equipped weapons and armor have to show stats     DONE
 - items need shortcuts (like spells)                DONE
 - ASCII pictures for spells, inventory, battle, title
-
+- skill (searching, disarming traps, opening locks) DONE
+- spells (searching, disarming traps, opening locks)
 
 Future minor improvements:
 - multiple save states 

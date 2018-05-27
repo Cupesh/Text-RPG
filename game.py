@@ -29,6 +29,11 @@ class Player:
         self.energy = 100
         self.knows_magic = False
         self.spells = []
+        self.searching = 0
+        self.opening_locks = 0
+        self.disarming_traps = 0
+        self.successfull_searches = 0
+        self.successfull_traps = 0
         self.area = 'City'
         self.position = 'a1'
         self.previous_position = None
@@ -82,8 +87,22 @@ class Player:
         b = random.randint(1, 5)
         self.max_energy += b
         print('\nYour energy went up')
-        if self.level % 3 == 0:                                                 # Every third level player can add +1 to a stat
+
+        if self.job == 'Thief':
+            if self.level % 2 == 0:
+                self.searching += 1
+                self.opening_locks += 1
+                self.disarming_traps += 1
+                print('\n<Your skills improved!>')
+        elif self.job == 'Warrior' or 'Mage':
+            if self.level % 3 == 0:
+                self.searching += 1
+                self.opening_locks += 1
+                self.disarming_traps += 1
+                print('\n<Your skills improved!>')
+        if self.level % 5 == 0:
             self.stat_increase(previous_screen)
+            
         input('\n<Continue (Press Enter)>')
         if previous_screen == tavern_prompt:
             previous_screen(gamemap[myplayer.area][myplayer.position]['OWNER'])
@@ -118,15 +137,18 @@ class Player:
         print('')
         print('{} Level: {}, XP: {}, Next Level: {}'.format(self.job, str(self.level), str(self.xp), str(self.next_level - self.xp)).center(width))
         print('')
-        print('{}HP: {}/{}'.format((' ' * 45), self.max_hp, self.hp))
-        print('{}MP: {}/{}'.format((' ' * 45), self.max_mp, self.mp))
-        print('\n{}Energy: {}/{}'.format((' ' * 45), self.max_energy, self.energy))
+        print('{}HP: {}/{}'.format((' ' * 45), self.hp, self.max_hp))
+        print('{}MP: {}/{}'.format((' ' * 45), self.mp, self.max_mp))
+        print('\n{}Energy: {}/{}'.format((' ' * 45), self.energy, self.max_energy))
         print('\n{}Attack: {}'.format((' ' * 45), self.attack))
         print('{}Defence: {}'.format((' ' * 45), self.defence))
         print('{}Speed: {}'.format((' ' * 45), self.speed))
-        if self.quests:
-            for quest in self.quests:
-                print(quest.name)
+        print('')
+        print('Skills'.center(width))
+        print('--------'.center(width))
+        print('Searching: {} %'.format(str(self.searching)).center(width))
+        print('Opening Locks: {} %'.format(str(self.opening_locks)).center(width))
+        print('Disarming Traps: {} %'.format(str(self.disarming_traps)).center(width))
         input('\n<Continue (Press Enter)>')
         print_location()
 
@@ -491,10 +513,11 @@ def character_creation():
     
     os.system('cls')
     print('\n' * 24)
-    options = ['1', '2']
+    options = ['1', '2', '3']
     print('What is your job?'.center(width) + '\n')
     print('[1] Warrior'.center(width))
     print('[2] Mage'.center(96))
+    print('[3] Thief'.center(98))
     answer = input('> ')
     while answer not in options:
         character_creation()
@@ -504,6 +527,8 @@ def character_creation():
         myplayer.hp = 20
         myplayer.max_mp = 0
         myplayer.mp = 0
+        myplayer.attack += 1
+        myplayer.defence += 1
         game_introduction()
 
     elif answer == '2':
@@ -516,6 +541,19 @@ def character_creation():
         myplayer.speed = 7
         myplayer.spells.append(minor_healing)
         myplayer.spells.append(fireball)
+        game_introduction()
+
+    elif answer == '3':
+        myplayer.job = 'Thief'
+        myplayer.max_hp = 17
+        myplayer.hp = 17
+        myplayer.max_mp = 0
+        myplayer.mp = 0
+        myplayer.knows_magic = False
+        myplayer.speed = 11
+        myplayer.searching = 7
+        myplayer.opening_locks = 5
+        myplayer.disarming_traps = 3
         game_introduction()
 
 def game_introduction():                                                                 # Welcoming screen
@@ -536,9 +574,9 @@ def print_location():
         death_screen()
     os.system('cls')
     print(('-' * 40).center(width))
-    print('HP: {}/{} MP: {}/{}'.format(myplayer.max_hp, myplayer.hp, myplayer.max_mp, myplayer.mp).center(width))
-    print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, myplayer.next_level).center(width))
-    print(' ' * 35 + 'Energy: {}/{}'.format(myplayer.max_energy, myplayer.energy) + (' ' * 6) + 'Day: {}'.format(str(myplayer.day)))
+    print('HP: {}/{} MP: {}/{}'.format(myplayer.hp, myplayer.max_hp, myplayer.mp, myplayer.max_mp).center(width))
+    print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, (myplayer.next_level - myplayer.xp)).center(width))
+    print(' ' * 35 + 'Energy: {}/{}'.format(myplayer.energy, myplayer.max_energy) + (' ' * 6) + 'Day: {}'.format(str(myplayer.day)))
     print(('-' * 40).center(width))
     print(' ')
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
@@ -579,6 +617,9 @@ def prompt():
     if 'TAVERN' in gamemap[myplayer.area][myplayer.position]:
         options.append('b')
         menu.append('bTavern')
+    if 'SEARCH' in gamemap[myplayer.area][myplayer.position]:
+        options.append('x')
+        menu.append('xSearch')
     for i in menu:
         print('[{}] {}'.format(i[0].lower(), i[1:]))
     for i in end_menu:
@@ -607,6 +648,8 @@ def prompt():
         myplayer.journal()
     elif answer == 'b':
         tavern()
+    elif answer == 'x':
+        search(gamemap[myplayer.area][myplayer.position]['SEARCH'])
 
 # ----------------------------------------------------------- movement ------------------------------------------------------------------
 def player_movement():
@@ -739,11 +782,11 @@ def battle_player_turn(enemy):
     print('{:=^99}'.format('Player\'s turn'))
     print('')
     print(myplayer.name.center(width))
-    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
-    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
+    print('HP: {}/{}'.format(myplayer.hp, myplayer.max_hp).center(width))
+    print('MP: {}/{}'.format(myplayer.mp, myplayer.max_mp).center(width))
     print('-' * 99)
     print(enemy.name.center(width).center(width))
-    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
+    print('HP: {}/{}'.format(enemy.hp, enemy.max_hp).center(width))
     print('-' * 99)
     print('\n')
 
@@ -784,11 +827,11 @@ def battle_enemy_turn(enemy):
     print('{:=^99}'.format('Enemy\'s turn'))
     print('')
     print(myplayer.name.center(width))
-    print('HP: {}/{}'.format(myplayer.max_hp, myplayer.hp).center(width))
-    print('MP: {}/{}'.format(myplayer.max_mp, myplayer.mp).center(width))
+    print('HP: {}/{}'.format(myplayer.hp, myplayer.max_hp).center(width))
+    print('MP: {}/{}'.format(myplayer.mp, myplayer.max_mp).center(width))
     print('-' * 99)
     print(enemy.name.center(width).center(width))
-    print('HP: {}/{}'.format(enemy.max_hp, enemy.hp).center(width))
+    print('HP: {}/{}'.format(enemy.hp, enemy.max_hp).center(width))
     print('-' * 99)
     print('\n')
 
@@ -1428,6 +1471,9 @@ def quest_completing(npc, previous_screen):
         for i in myplayer.armors_inventory:
             if i[0] == npc.quest.item_reward:
                 i[1] += 1
+        for item in myplayer.consumables_inventory:
+            if item[0] == npc.quest.item_reward:
+                item[1] += 1
         print('\n<Received {}.>'.format(npc.quest.item_reward.name))
     
     myplayer.quests.remove(npc.quest)
@@ -1435,6 +1481,90 @@ def quest_completing(npc, previous_screen):
     npc.quest = None
     input('\nFarewell (Leave)')
     myplayer.exp(reward, previous_screen)
+
+
+def search(room):
+    used_energy = 7 - (myplayer.speed // 2)
+    if used_energy < 2:
+        used_energy == 2
+
+    success_chance = room.chance + myplayer.searching
+    attempt = random.randint(1, 100)
+    print(str(success_chance), str(attempt))
+    if attempt <= success_chance:
+        if room.trap:
+            disarm_trap(room.trap)
+            
+            if room.trap.disarmed == False:
+                myplayer.energy -= 5
+                print('\n<You didn\'t find anything.>')
+                room.chance += 15
+                input('\n<Continue>')
+                print_location()
+
+        if room.gold:
+            print('\n<You have found {} gold pieces!>'.format(str(room.gold)))
+            myplayer.gold += room.gold
+        if room.item:
+            print('\n<You have found {}!>'.format(room.item.name))
+            for i in myplayer.weapons_inventory:
+                if i[0] == room.item:
+                    i[1] += 1
+            for i in myplayer.potions_inventory:
+                if i[0] == room.item:
+                    i[1] += 1
+            for i in myplayer.armors_inventory:
+                if i[0] == room.item:
+                    i[1] += 1
+            for i in myplayer.consumables_inventory:
+                if i[0] == room.item:
+                    i[1] += 1
+
+        myplayer.successfull_searches += 1
+        if myplayer.successfull_searches & 5 == 0:
+            myplayer.searching += 1
+            print('\n<Your skill increased!>')
+        
+        myplayer.energy -= 5
+        del(gamemap[myplayer.area][myplayer.position]['SEARCH'])
+        input('\n<Continue>')
+        myplayer.exp(room.xp, print_location)
+
+    else:
+        myplayer.energy -= 5
+        print('\n<You didn\'t find anything.>')
+        room.chance += 15
+        input('\n<Continue>')
+
+    print_location()
+
+def disarm_trap(trap):
+    chance = trap.chance + myplayer.disarming_traps
+    attempt = random.randint(1, 100)
+        
+    print('\n<While searching, you found a trap. Would you like to try and disarm it?' + ' (' + str(chance) + '%)')
+    print('\n[1] Yes\n[2] No')
+        
+    options = ['1', '2']
+    answer = input('\n> ')
+    while answer not in options:
+        trap.disarm_trap(myplayer)
+    if answer == '1':
+        if attempt <= chance:
+            print('\n<You succesfully disarmed the trap!>')
+            print('\n<You gained {} xp!>'.format(str(trap.xp)))
+            myplayer.xp += trap.xp
+            trap.disarmed = True
+            myplayer.successfull_traps += 1
+            if myplayer.successfull_traps % 3 == 0:
+                print('\n<Your skill increased!>')
+                myplayer.disarming_traps += 1
+        else:
+            print('\nYou failed at disarming the trap and triggered it!>')
+            myplayer.hp -= trap.damage
+            print('\n<You suffered {} HP damage!>'.format(str(trap.damage)))
+    elif answer == '2':
+        trap.chance += 100
     
 
 
