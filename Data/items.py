@@ -200,3 +200,28 @@ class KillQuest(Quest):
 first_quest = FetchQuest('Test Quest', 'Testing the quest system', 'Old Lady', {'FIRST' : True, 'SECOND' : False}, {'FIRST' : 'Bring 1x Short Sword', 'SECOND' : ''}, 20, 10, healing_potion, short_sword, 1)
 second_quest = KillQuest('Test Kill Quest', 'Kill 3 Giant Rats!', 'Young man', {'FIRST' : True, 'SECOND' : False}, {'FIRST' : 'Kill 3x Giant Rat', 'SECOND' : ''},
                         25, 20, None, 'Giant Rat', 3)
+
+
+
+class Trap:
+    def __init__(self, message, chance, damage, xp, disarmed = False):
+        self.message = message
+        self.chance = chance
+        self.damage = damage
+        self.xp = xp
+        self.disarmed = disarmed
+
+
+
+trap_1 = Trap('You stepped on ', 20, 4, 3)
+
+class Search:
+    def __init__(self, item=None, gold=None, xp=None, trap=None, chance=None):
+        self.item = item
+        self.gold = gold
+        self.xp = xp
+        self.trap = trap
+        self.chance = chance
+
+
+srch_cave_a2 = Search(item = healing_potion, gold = 3, xp = 3, trap = trap_1, chance = 50)
