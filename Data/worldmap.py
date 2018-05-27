@@ -70,6 +70,7 @@ gamemap = {
         'DESCRIPTION' : 'This is a dead end. You see a pile of bones and a sword on the ground.',
         'VISITED_DESCRIPTION' : "This room doesn't lead anywhere. Pile of bones on the ground has nothing interesting in it.",
         'VISITED' : False,
+        'SEARCH' : srch_cave_a2,
         'UP' : None,
         'DOWN' : None,
         'LEFT' : 'a1',
