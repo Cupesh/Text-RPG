@@ -12,7 +12,7 @@
 - commenting the code                               DONE
 - prompt window numbered rather than typed          DONE
 - print_location() shows player's hp,mp,level...    DONE
-- Help menu                                         99% (will need update)
+- Help menu                                         needs update
 - talking to random npcs                            DONE
 - quest giving/completing                           DONE
 - n,s,e,w functionality                             DONE
@@ -22,18 +22,20 @@
   (declaring variables for repeated code)           DONE
 - tavern and ability to sleep                       DONE
 - add consumables                                   DONE
-- text message to tiredness level
+- text message to tiredness level                   DONE
 - multiple enemies battle
 - using magic during battle                         DONE
 - spells used by typing shortcut of the spell       DONE
 - search function with energy usage                 DONE
 - traps                                             DONE
-- locks
+- locks                                             DONE
 - equipped weapons and armor have to show stats     DONE
 - items need shortcuts (like spells)                DONE
 - ASCII pictures for spells, inventory, battle, title
 - skill (searching, disarming traps, opening locks) DONE
-- spells (searching, disarming traps, opening locks)
+- spells (searching, disarming traps, opening locks)DONE
+- force open locks                                  DONE
+- make the code PEP8 standard!!!!!!
 
 Future minor improvements:
 - multiple save states 
