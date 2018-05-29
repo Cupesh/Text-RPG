@@ -155,13 +155,17 @@ class HealingSpell(Spell):
         player.mp -= self.mp_cost
         print('\n<You have used {}!>'.format(self.name))
 
+class SkillSpell(Spell):
+    def __init__(self, name, shortcut, description, level_required, mp_cost):
+        super().__init__(name, shortcut, description, level_required,mp_cost)
+
 
 # healing spells
 minor_healing = HealingSpell('Minor Healing', 'mih', 'Heals 10 HP', 1, 6, 10)
 healing = HealingSpell('Healing', 'he', 'Heals 20 HP', 5, 13, 20)
 major_healing = HealingSpell('Full Heal', 'mah', 'Fully restores HP', 10, 30, 999)
 
-#damage spells
+# damage spells
 fireball = DamageSpell('Fireball', 'fb', '5 HP DMG', 1, 5, 5)
 frostbite = DamageSpell('Frostbite', 'fr', '7 HP DMG', 3, 7, 7)
 thunder = DamageSpell('Thunder', 'th', '10 HP DMG', 5, 10, 10)
@@ -169,7 +173,12 @@ flames = DamageSpell('Flames', 'fl', '15 HP DMG', 7, 15, 15)
 blizzard = DamageSpell('Blizzard', 'bl', '20 HP DMG', 10, 20, 20)
 storm = DamageSpell('Storm', 'st', '30 HP DMG', 15, 30, 30)
 
-all_spells_list = [minor_healing, healing, major_healing, fireball, frostbite, thunder, flames, blizzard, storm]
+# skill spells
+vision = SkillSpell('Vision', 'vis', 'Greatly increases the chance of succesfull search.', 2, 2)
+spell_disarm_trap = SkillSpell('Disarm Trap', 'dat', 'Safely disarms traps', 3, 3)
+spell_open_lock = SkillSpell('Open', 'op', 'Unlocks any lock.', 4, 4)
+
+all_spells_list = [minor_healing, healing, major_healing, fireball, frostbite, thunder, flames, blizzard, storm, vision, spell_disarm_trap, spell_open_lock]
 
 
 class Quest:
@@ -211,17 +220,25 @@ class Trap:
         self.xp = xp
         self.disarmed = disarmed
 
-
-
 trap_1 = Trap('You stepped on ', 20, 4, 3)
 
+class Treasure:
+    def __init__(self, chance, xp, gold, item, force):
+        self.chance = chance
+        self.xp = xp
+        self.gold = gold
+        self.item = item
+        self.force = force
+
+treasure_1 = Treasure(50, 3, 10, [dagger], 3)
+
 class Search:
-    def __init__(self, item=None, gold=None, xp=None, trap=None, chance=None):
+    def __init__(self, item=None, gold=None, xp=None, trap=None, chance=None, treasure=None):
         self.item = item
         self.gold = gold
         self.xp = xp
         self.trap = trap
         self.chance = chance
+        self.treasure = treasure
 
-
-srch_cave_a2 = Search(item = healing_potion, gold = 3, xp = 3, trap = trap_1, chance = 50)
+srch_cave_a2 = Search(item = [healing_potion, mana_potion], gold = 3, xp = 3, trap = trap_1, chance = 50, treasure = treasure_1)
