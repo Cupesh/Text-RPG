@@ -34,6 +34,7 @@ class Player:
         self.disarming_traps = 0
         self.successfull_searches = 0
         self.successfull_traps = 0
+        self.succesfull_locks = 0
         self.area = 'City'
         self.position = 'a1'
         self.previous_position = None
@@ -54,6 +55,7 @@ class Player:
         self.quests = []
         self.kill_count = [['Giant Rat', 0],['Goblin', 0],['Skeleton', 0], ['Zombie', 0], ['Bandit greenhorn', 0]]
         self.day = 1
+        self.effect = []
 
 
 # ---------------------------------------------- leveling up --------------------------------------------------------------
@@ -430,13 +432,47 @@ class Player:
         input('\n' + '<Continue (Press Enter)>'.center(width))
         print_location()
 
+# ----------------------------------------------------------- effect checkers --------------------------------------------------------
 
+    def is_alive(self):
+        if self.energy < 1:
+            death_screen()
+        if self.hp < 1:
+            death_screen()
+
+    def energy_checker(self):
+        if 20 <= self.energy < 40 and 'little_tiredness' not in self.effect:
+            self.effect.append('little_tiredness')
+
+        if self.energy < 20:
+            if 'little_tiredness' in self.effect:
+                self.effect.remove('little_tiredness')
+            if 'tiredness' not in self.effect:
+                self.effect.append('tiredness')
+                self.attack -= 1
+                self.defence -= 1
+                self.speed -= 2
+
+        if self.energy > 20 and 'tiredness' in self.effect:
+            self.effect.remove('tiredness')
+            self.attack += 1
+            self.defence += 1
+            self.speed += 2
+            if 40 > self.energy >= 20 and 'little_tiredness' not in self.effect:
+                self.effect.append('little_tiredness')
+
+        if self.energy >= 40 and 'little_tiredness' in self.effect:
+            self.effect.remove('little_tiredness')
+
+    def effect_checker(self):
+        pass
 
 # --------------------------------------------------------- Death Screen --------------------------------------------------------------
 def death_screen():
     os.system('cls')
     print('Youd DIED!'.center(width) + '\n')
     input('OK'.center(width))
+    myplayer = Player()
     title_screen()
 
 
@@ -568,15 +604,17 @@ def game_introduction():                                                        
 
 # ------------------------------------------------------ main game window  ------------------------------------------------------------
 def print_location():
-    if myplayer.energy < 1:
-        death_screen()
-    if myplayer.hp < 1:
-        death_screen()
+    myplayer.is_alive()
+    myplayer.energy_checker()
     os.system('cls')
     print(('-' * 40).center(width))
     print('HP: {}/{} MP: {}/{}'.format(myplayer.hp, myplayer.max_hp, myplayer.mp, myplayer.max_mp).center(width))
     print('Level: {} XP: {} Next Level: {}'.format(myplayer.level, myplayer.xp, (myplayer.next_level - myplayer.xp)).center(width))
     print(' ' * 35 + 'Energy: {}/{}'.format(myplayer.energy, myplayer.max_energy) + (' ' * 6) + 'Day: {}'.format(str(myplayer.day)))
+    if 'tiredness' in myplayer.effect:
+        print('<You feel tired, your stats decreased!>'.center(width))
+    if 'little_tiredness' in myplayer.effect:
+        print('<You are starting to feel tired.>'.center(width))
     print(('-' * 40).center(width))
     print(' ')
     print('{:=^99}'.format(gamemap[myplayer.area][myplayer.position]['GRIDNAME']))      # Checks player location, position and from worldmap.py
@@ -1484,77 +1522,104 @@ def quest_completing(npc, previous_screen):
 
 
 def search(room):
+    success_chance = room.chance + myplayer.searching
+    attempt = random.randint(1, 100)
+
+    if myplayer.knows_magic == True:
+        if vision in myplayer.spells:
+            print('\n<Would you like to use Vision spell?>')
+            print('\n[1] Yes\n[2] No')
+            options = ['1', '2']
+            answer = input('\n< ')
+            while answer not in options:
+                search(room)
+            if answer == '1':
+                if myplayer.mp >= vision.mp_cost:
+                    myplayer.mp -= vision.mp_cost
+                    success_chance += 30
+                else:
+                    print('\n<Not enough MP!>')
+            elif answer == '2':
+                pass
+                 
     used_energy = 7 - (myplayer.speed // 2)
     if used_energy < 2:
         used_energy == 2
 
-    success_chance = room.chance + myplayer.searching
-    attempt = random.randint(1, 100)
     print(str(success_chance), str(attempt))
     if attempt <= success_chance:
+        room.chance += 100
         if room.trap:
-            disarm_trap(room.trap)
-            
-            if room.trap.disarmed == False:
-                myplayer.energy -= 5
-                print('\n<You didn\'t find anything.>')
-                room.chance += 15
-                input('\n<Continue>')
-                print_location()
+            disarm_trap(room.trap, room)
 
+        if room.treasure:
+            open_lock(room.treasure)
         if room.gold:
             print('\n<You have found {} gold pieces!>'.format(str(room.gold)))
             myplayer.gold += room.gold
         if room.item:
-            print('\n<You have found {}!>'.format(room.item.name))
-            for i in myplayer.weapons_inventory:
-                if i[0] == room.item:
-                    i[1] += 1
-            for i in myplayer.potions_inventory:
-                if i[0] == room.item:
-                    i[1] += 1
-            for i in myplayer.armors_inventory:
-                if i[0] == room.item:
-                    i[1] += 1
-            for i in myplayer.consumables_inventory:
-                if i[0] == room.item:
-                    i[1] += 1
+            for item in room.item:
+                for i in myplayer.weapons_inventory:
+                    if i[0] == item:
+                        i[1] += 1
+                for i in myplayer.potions_inventory:
+                    if i[0] == item:
+                        i[1] += 1
+                for i in myplayer.armors_inventory:
+                    if i[0] == item:
+                        i[1] += 1
+                for i in myplayer.consumables_inventory:
+                    if i[0] == item:
+                        i[1] += 1
+                print('\n<You have found {}!>'.format(item.name))
 
         myplayer.successfull_searches += 1
         if myplayer.successfull_searches & 5 == 0:
             myplayer.searching += 1
             print('\n<Your skill increased!>')
         
-        myplayer.energy -= 5
+        myplayer.energy -= used_energy
         del(gamemap[myplayer.area][myplayer.position]['SEARCH'])
         input('\n<Continue>')
         myplayer.exp(room.xp, print_location)
 
     else:
-        myplayer.energy -= 5
+        if room.trap:
+            if attempt / (success_chance / 100) < 10:
+                print('\n<While searching the room, you didn\'t notice a trap and accidentally triggered it, hurting you {} damage!>'.format(str(room.trap.damage)))
+                myplayer.hp -= room.trap.damage
+                room.trap = None
+            else:
+                disarm_trap(room.trap, room)
+
+        myplayer.energy -= used_energy
         print('\n<You didn\'t find anything.>')
         room.chance += 15
         input('\n<Continue>')
 
     print_location()
 
-def disarm_trap(trap):
+def disarm_trap(trap, room):
     chance = trap.chance + myplayer.disarming_traps
     attempt = random.randint(1, 100)
         
-    print('\n<While searching, you found a trap. Would you like to try and disarm it?' + ' (' + str(chance) + '%)')
+    print('\n<While searching the room, you noticed a trap. Would you like to try and disarm it?' + ' (' + str(chance) + '%)')
     print('\n[1] Yes\n[2] No')
         
     options = ['1', '2']
+    
+    if myplayer.knows_magic == True and spell_disarm_trap in myplayer.spells:
+        print('[3] Use Disarm Trap spell')
+        options.append('3')
+    
     answer = input('\n> ')
     while answer not in options:
-        trap.disarm_trap(myplayer)
+        disarm_trap(trap, room)
     if answer == '1':
         if attempt <= chance:
             print('\n<You succesfully disarmed the trap!>')
             print('\n<You gained {} xp!>'.format(str(trap.xp)))
             myplayer.xp += trap.xp
-            trap.disarmed = True
             myplayer.successfull_traps += 1
             if myplayer.successfull_traps % 3 == 0:
                 print('\n<Your skill increased!>')
@@ -1563,10 +1628,137 @@ def disarm_trap(trap):
             print('\nYou failed at disarming the trap and triggered it!>')
             myplayer.hp -= trap.damage
             print('\n<You suffered {} HP damage!>'.format(str(trap.damage)))
-    elif answer == '2':
-        trap.chance += 100
-    
 
+        room.trap = None
+        myplayer.energy -= 2
+
+    elif answer == '2':
+        print_location()
+
+    elif answer == '3':
+        if myplayer.mp >= spell_disarm_trap.mp_cost:
+            print('\n<You succesfully disarmed the trap!>')
+            print('\n<You gained {} xp!>'.format(str(trap.xp)))
+            myplayer.xp += trap.xp
+            myplayer.mp -= spell_disarm_trap.mp_cost
+            room.trap = None
+        else:
+            print('\n<Not enough MP!>')
+            disarm_trap(trap, room)
+
+def open_lock(lock):
+    chance = lock.chance + myplayer.opening_locks
+    attempt = random.randint(1, 100)
+
+    print('\n<You have found a trasure chest, but it is locked. Would you like to try and picklock it?>' + ' (' + str(chance) + '%)')
+    print('\n[1] Yes\n[2] No\n[3] Force open lock')
+    
+    options = ['1', '2', '3']
+    if myplayer.knows_magic == True and spell_open_lock in myplayer.spells:
+        print('[4] Use Open spell')
+        options.append('4')
+
+    answer = input('\n> ')
+    while answer not in options:
+        open_lock(lock)
+    
+    if answer == '1':
+        if attempt <= chance:
+            print('\n<Success!>')
+            if lock.gold:
+                myplayer.gold += lock.gold
+                print('\n<You found {} gold!>'.format(str(lock.gold)))
+            if lock.item:
+                for item in lock.item:
+                    for i in myplayer.weapons_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.potions_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.armors_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.consumables_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    print('\n<You have found {}!>'.format(item.name))
+
+            myplayer.xp += lock.xp
+            myplayer.succesfull_locks += 1
+            if myplayer.succesfull_locks % 3 == 0:
+                myplayer.opening_locks += 1
+                print('\n<Your skill increased!>')
+
+        else:
+            print('/<You failed at opening the lock and broke the picklock in the proccess!>')
+            open_lock(lock)
+        
+        myplayer.energy -= 2
+
+    elif answer == '2':
+        print_location()
+
+    elif answer == '3':
+        lock_strenght = lock.force + random.randint(0, 2)
+        force_attempt = myplayer.attack + random.randint(1, 3)
+
+        if lock_strenght > force_attempt:
+            print('\n<You failed at force opening the lock!')
+            myplayer.energy -= 4
+            open_lock(lock)
+
+        else:
+            print('\n<Success!>')
+            if lock.gold:
+                myplayer.gold += lock.gold
+                print('\n<You found {} gold!>'.format(str(lock.gold)))
+            if lock.item:
+                for item in lock.item:
+                    for i in myplayer.weapons_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.potions_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.armors_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.consumables_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    print('\n<You have found {}!>'.format(item.name))
+
+            myplayer.energy -= 3
+
+    elif answer == '4':
+        if myplayer.mp >= spell_open_lock.mp_cost:
+            print('\n<Success!>')
+            if lock.gold:
+                myplayer.gold += lock.gold
+                print('\n<You found {} gold!>'.format(str(lock.gold)))
+            if lock.item:
+                for item in lock.item:
+                    for i in myplayer.weapons_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.potions_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.armors_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    for i in myplayer.consumables_inventory:
+                        if i[0] == item:
+                            i[1] += 1
+                    print('\n<You have found {}!>'.format(item.name))
+
+            myplayer.xp += lock.xp
+            myplayer.mp -= spell_open_lock.mp_cost
+
+        else:
+            print('\n<Not enough MP!>')
+            open_lock(lock)
 
 
 title_screen()
