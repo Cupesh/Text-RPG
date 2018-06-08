@@ -35,8 +35,9 @@
 - skill (searching, disarming traps, opening locks) DONE
 - spells (searching, disarming traps, opening locks)DONE
 - force open locks                                  DONE
-- make the code PEP8 standard!!!!!!
-- add picklocks item
+- make the code PEP8 standard!!!!!!                 DONE
+- add picklocks item                                DONE
+- remove picklock when used
 
 Future minor improvements:
 - multiple save states 
