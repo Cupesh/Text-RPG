@@ -13,7 +13,9 @@ class Weapon(Item):
         self.speed = speed
 
     def __str__(self):
-        return('{}    -> Damage: {} Speed: {} Price:{}'.format(self.name, self.damage, self.speed, self.value))
+        a = ' ' * (4 - len(self.shortcut))
+        b = ' ' * (20 - len(self.name))
+        return('[{}]{}{}{}Damage: {} Speed: {} Price:{}'.format(self.shortcut, a, self.name, b, self.damage, self.speed, self.value))
 
 class Potion(Item):
     def __init__(self, name, shortcut, value, hp_up = False, mp_up = False, speed_up = False, defence_up = False, attack_up = False):
@@ -23,6 +25,11 @@ class Potion(Item):
         self.speed_up = speed_up
         self.defence_up = defence_up
         self.attack_up = attack_up
+
+    def __str__(self):
+        a = ' ' * (4 - len(self.shortcut))
+        b = ' ' * (20 - len(self.name))
+        return('[{}]{}{}{}Price: {} gold'.format(self.shortcut, a, self.name, b, self.value))
 
     def use_potion(self, player):
         if self.hp_up == True and self.mp_up == True:
@@ -53,14 +60,21 @@ class Armor(Item):
         self.mana_bonus = mana_bonus
 
     def __str__(self):
-        return('{}    -> Defence: {} Speed: {} Price: {}'.format(self.name, self.defence_bonus, self.speed, self.value))
+        a = ' ' * (4 - len(self.shortcut))
+        b = ' ' * (20 - len(self.name))
+        return('[{}]{}{}{}Defence: {} Speed: {} Price: {} gold'.format(self.shortcut, a, self.name, b, self.defence_bonus, self.speed, self.value))
 
 class Consumable(Item):
-    def __init__(self, name, shortcut, value, energy_up, hp_up = None, mp_up = None):
+    def __init__(self, name, shortcut, value, energy_up, hp_up = 0, mp_up = 0):
         super().__init__(name, shortcut, value)
         self.hp_up = hp_up
         self.mp_up = mp_up
         self.energy_up = energy_up
+
+    def __str__(self):
+        a = ' ' * (4 - len(self.shortcut))
+        b = ' ' * (20 - len(self.name))
+        return('[{}]{}{}{}Energy: {} HP: {} MP: {} Price: {} gold'.format(self.shortcut, a, self.name, b, self.energy_up, self.hp_up, self.mp_up, self.value))
 
     def use_consumable(self, player):
         if self.hp_up:
@@ -77,6 +91,17 @@ class Consumable(Item):
         if player.energy > player.max_energy:
             player.energy = player.max_energy
         print('\n<Used {}. Restored {} energy!>\n'.format(self.name, self.energy_up))
+
+class Other(Item):
+    def __init__(self, name, shortcut, value):
+        self.name = name
+        self.shortcut = shortcut
+        self.value = value
+
+    def __str__(self):
+        a = ' ' * (4 - len(self.shortcut))
+        b = ' ' * (20 - len(self.name))
+        return('[{}]{}{}{}Price: {} gold'.format(self.shortcut, a, self.name, b, self.value))
 
 # weapons
 dagger = Weapon('Dagger', 'da', value = 4, damage = 3, speed = -1)
@@ -118,6 +143,10 @@ wine = Consumable('Wine', 'wi', value = 6, energy_up = 2, mp_up=5)
 beer = Consumable('Beer', 'be', value = 2, energy_up = 1, mp_up=2)
 apple = Consumable('Apple', 'ap', value = 1, energy_up = 5)
 full_meal = Consumable('Full meal', 'fum', value = 10, energy_up = 15, hp_up = 3)
+
+
+# other
+picklock = Other('Picklock', 'pck', 15)
 
 #================================================================================================================================
 #================================================================================================================================
